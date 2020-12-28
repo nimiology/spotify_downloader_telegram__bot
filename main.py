@@ -13,13 +13,13 @@ import requests
 import telepot
 import time
 
-token = '1478191981:AAH9UngF3hZPciLmmAX2_H5rtyVST77QSIY'
+token = 'telegram token'
 bot = telepot.Bot(token)
 
-genius = lyricsgenius.Genius('biZZReO7F98mji5oz3cE0FiIG73Hh07qoXSIzYSGNN3GBsnY-eUrPAVSdJk_0_de')
+genius = lyricsgenius.Genius('genius api token')
 spotifyy = spotipy.Spotify(
-    client_credentials_manager=SpotifyClientCredentials(client_id='a145db3dcd564b9592dacf10649e4ed5',
-                                                        client_secret='389614e1ec874f17b8c99511c7baa2f6'))
+    client_credentials_manager=SpotifyClientCredentials(client_id='client id spotify',
+                                                        client_secret='client server spotify'))
 
 
 def handle(msg):
