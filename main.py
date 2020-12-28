@@ -13,13 +13,13 @@ import requests
 import telepot
 import time
 
-token = 'telegram token'
+token = '1478191981:AAH9UngF3hZPciLmmAX2_H5rtyVST77QSIY'
 bot = telepot.Bot(token)
 
-genius = lyricsgenius.Genius('genius api token')
+genius = lyricsgenius.Genius('biZZReO7F98mji5oz3cE0FiIG73Hh07qoXSIzYSGNN3GBsnY-eUrPAVSdJk_0_de')
 spotifyy = spotipy.Spotify(
-    client_credentials_manager=SpotifyClientCredentials(client_id='client id spotify',
-                                                        client_secret='client server spotify'))
+    client_credentials_manager=SpotifyClientCredentials(client_id='a145db3dcd564b9592dacf10649e4ed5',
+                                                        client_secret='389614e1ec874f17b8c99511c7baa2f6'))
 
 
 def handle(msg):
@@ -27,8 +27,7 @@ def handle(msg):
     print(content_type, chat_type, chat_id)
 
     if content_type == 'text':
-        lenk = msg['text']
-        if lenk.find('https://open.spotify.com') != 1:
+        def download(lenk, chat_id = chat_id):
             results = spotifyy.track(lenk)
             song = results['name']
             artist = results['artists'][0]['name']
@@ -69,10 +68,10 @@ def handle(msg):
                             '\nalbum artist : ' + albumartist +
                             "\ntrack num : {0}".format(tracknumber) +
                             "\nAlbum name : " + albumname +
-                            '\nrealese_date : ' + releasedate +
+                            '\nrealese date : ' + releasedate +
                             '\nduration : {0}'.format(time_duration))
             try:
-                bot.sendMessage(chat_id,"Searching...")
+                bot.sendMessage(chat_id, "Searching...")
                 aud = eyed3.load(f"song//{song_name_folder}.mp3")
                 results = spotifyy.track(lenk)
                 try:
@@ -90,7 +89,6 @@ def handle(msg):
                 file.write(response.content)
                 file.close()
 
-
                 aud.tag.artist = artist
                 aud.tag.album = albumname
                 aud.tag.album_artist = albumartist
@@ -103,10 +101,10 @@ def handle(msg):
                     pass
                 aud.tag.images.set(3, open(DIRCOVER, 'rb').read(), 'image/png')
                 aud.tag.save()
-                bot.sendMessage(chat_id, "sending...")
-                print("sending")
+                bot.sendMessage(chat_id, "Sending...")
+                print("Sending")
                 bot.sendAudio(chat_id, open(f'song//{song_name_folder}.mp3', 'rb'), title=trackname)
-                print("finished")
+                print("Finished!")
             except:
                 song_name_final = song_name.replace(" ", "+")
                 pre_url = "https://www.youtube.com/results?search_query="
@@ -120,7 +118,7 @@ def handle(msg):
                 try:
                     print(LINKASLI)
                 except:
-                    bot.sendMessage(chat_id,"404 \n NOT FOUND")
+                    bot.sendMessage(chat_id, "404 \n NOT FOUND")
 
                 print("Song Found")
                 yt_pre = str("https://www.youtube.com/" + LINKASLI)
@@ -173,10 +171,9 @@ def handle(msg):
                         pass
                     aud.tag.images.set(3, open(DIRCOVER, 'rb').read(), 'image/png')
                     aud.tag.save()
-                    bot.sendMessage(chat_id,"sending...")
-                    print("sending")
-                    bot.sendAudio(chat_id, open(f'song//{song_name_folder}.mp3', 'rb'), title = trackname)
-                    print("finished")
+                    bot.sendMessage(chat_id, "Sending...")
+                    print("Sending")
+                    bot.sendAudio(chat_id, open(f'song//{song_name_folder}.mp3', 'rb'), title=trackname)
 
                 def run():
                     options = {
@@ -197,14 +194,34 @@ def handle(msg):
 
                     with youtube_dl.YoutubeDL(options) as mp3:
                         mp3.download([yt_pre])
-                        bot.sendMessage(chat_id,"Downloaded.")
+                        bot.sendMessage(chat_id, "Downloaded.")
                         tag()
                         print("Download Completed!")
 
                 if __name__ == '__main__':
                     check()
 
+        leenk = msg['text']
 
+
+
+
+        if leenk[:30]==('https://open.spotify.com/album') :
+
+            results = spotifyy.album_tracks(leenk)
+            albums = results['items']
+            while results['next']:
+                results = spotifyy.next(results)
+                albums.extend(results['items'])
+
+            for album in albums:
+                download(album['id'])
+        elif leenk[:30]== ('https://open.spotify.com/track')  :
+
+            download(leenk)
+
+        else:
+            bot.sendMessage(chat_id,"Link invalid")
 bot.message_loop(handle)
 
 print('Listening ...')
