@@ -21,5 +21,5 @@
 <b>now run the Script ;)</b>
 <h1>Usage video</h1>
 <br>
-[![spotify_music_downloader_telegram_bot](https://img.youtube.com/vi/DVS4XTIIDZE&t/0.jpg)](https://www.youtube.com/watch?v=DVS4XTIIDZE&t)
+[![spotifymusicdownloadertelegrambot](https://img.youtube.com/vi/DVS4XTIIDZE&t/0.jpg)](https://www.youtube.com/watch?v=DVS4XTIIDZE&t)
 
