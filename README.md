@@ -19,7 +19,7 @@
                                                         client_secret='client secret spotify'))</pre>
 
 <b>now run the Script ;)</b>
-<h1>Usage video</h1>
+### Usage video
 <br>
 [![Demo](https://img.youtube.com/vi/DVS4XTIIDZE/0.jpg)](https://www.youtube.com/watch?v=DVS4XTIIDZE)
 
