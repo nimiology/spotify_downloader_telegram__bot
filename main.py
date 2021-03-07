@@ -13,7 +13,6 @@ sort = {}
 def START(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     print(content_type, chat_type, chat_id)
-    bot.sendMessage(-1001427071315,chat_id)
     def DOWNLOADER(lenk):
         DETAIL = Detail(lenk)
         youtube.search(DETAIL.song_name, DETAIL.time_duration,
@@ -23,17 +22,12 @@ def START(msg):
 
     def sendtrack(link):
         DOWNLOADER(link)
-        bot.sendAudio(-1001316788330, open(f'song//{Detail(link).song_name_folder}.mp3', 'rb'),
-                      title=Detail(link).trackname)
         bot.sendAudio(chat_id, open(f'song//{Detail(link).song_name_folder}.mp3', 'rb'), title=Detail(link).trackname)
 
     def send(link):
         DOWNLOADER(link)
         bot.sendAudio(chat_id, open(f'song//{Detail(link).song_name_folder}.mp3', 'rb'),
                       title=Detail(link).trackname)
-        bot.sendAudio(-1001316788330, open(f'song//{Detail(link).song_name_folder}.mp3', 'rb'),
-                      title=Detail(link).trackname)
-
     def albumdownload(link):
         messagealbum = ""
         for song in Detail.album(link):
@@ -105,4 +99,3 @@ print('Listening ...')
 
 while 1:
     time.sleep(10)
-
