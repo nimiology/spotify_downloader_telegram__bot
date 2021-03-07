@@ -6,7 +6,7 @@ import tag
 import detail
 
 
-token = '1693683886:AAFg1bOmT7f5k40FfKbVezTuIMnC_tLk_xg'
+token = 'your token'
 bot = telepot.Bot(token)
 
 sort = {}
