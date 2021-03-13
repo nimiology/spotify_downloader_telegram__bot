@@ -1,43 +1,34 @@
 import eyed3.id3
 import eyed3
-from detail import Detail
-import requests
 import lyricsgenius
+from valuetotxt import read
 
 
 genius = lyricsgenius.Genius('your genius token')
 
-def tag(lenk,name):
-    DETAIL = Detail(lenk)
-    results = DETAIL.results
 
 
-    response = requests.get(results['album']['images'][0]['url'])
-    DIRCOVER = "songpicts//" + results['name'] + DETAIL.fetures + ".png"
-    file = open(DIRCOVER, "wb")
-    file.write(response.content)
-    file.close()
+def tag():
 
-    aud = eyed3.load(f"song//{DETAIL.song_name_folder}.mp3")
-    aud.tag.artist = results['artists'][0]['name']
-    aud.tag.album = results['album']['name']
-    aud.tag.album_artist = results['artists'][0]['name']
-    aud.tag.title = results['name'] + DETAIL.fetures
-    aud.tag.track_num = results['track_number']
-    aud.tag.year = int(results['album']['release_date'][:4])
+    song = read(0)
+    artist = read(1)
+    song_name_folder = read(3)
+    trackname = read(4)
+    realese_date = read(7)
+    tracknum = read(8)
+    album = read(9)
+
+    aud = eyed3.load(f"song//{song_name_folder}.mp3")
+    aud.tag.artist = artist
+    aud.tag.album = album
+    aud.tag.album_artist = artist
+    aud.tag.title = trackname
+    aud.tag.track_num = tracknum
+    aud.tag.year = realese_date
     try:
-        songok = genius.search_song(results['name'], results['artists'][0]['name'])
+        songok = genius.search_song(song, artist)
         aud.tag.lyrics.set(songok.lyrics)
     except:
         pass
-    aud.tag.images.set(3, open(DIRCOVER, 'rb').read(), 'image/png')
+    aud.tag.images.set(3, open("songpicts//" + trackname + ".png", 'rb').read(), 'image/png')
     aud.tag.save()
-
-def lyrics(lenk):
-    try:
-        DETAIL = Detail(lenk)
-        results = DETAIL.results
-        songok = genius.search_song(results['name'], results['artists'][0]['name'])
-        return songok.lyrics
-    except:
-        pass
