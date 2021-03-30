@@ -3,11 +3,10 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import valuetotxt
 import requests
 
+
 spotifyy = spotipy.Spotify(
     client_credentials_manager=SpotifyClientCredentials(client_id='client id',
                                                         client_secret='client secret'))
-
-
 
 
 class Detail:
@@ -54,11 +53,11 @@ class Detail:
                 if seconds == 10:
                     self.time_duration2 = "{0}:0{1}".format(self.minutes, self.seconds - 1)
                     self.time_duration3 = "{0}:{1}".format(self.minutes, self.seconds + 2)
-                elif seconds < 58:
+                elif seconds<58:
                     self.time_duration3 = "{0}:{1}".format(self.minutes, self.seconds + 2)
                     self.time_duration2 = "{0}:{1}".format(self.minutes, self.seconds - 1)
                 elif seconds == 58:
-                    self.time_duration3 = "{0}:0{1}".format(self.minutes + 1, self.seconds - 58)
+                    self.time_duration3 = "{0}:0{1}".format(self.minutes+1, self.seconds -58)
                     self.time_duration2 = "{0}:{1}".format(self.minutes, self.seconds - 1)
                 else:
                     self.time_duration2 = "{0}:{1}".format(self.minutes, self.seconds - 1)
@@ -73,7 +72,7 @@ class Detail:
             if seconds < 8:
                 self.time_duration3 = "{0}:0{1}".format(self.minutes, self.seconds + 2)
                 self.time_duration2 = "{0}:0{1}".format(self.minutes, self.seconds - 1)
-            elif seconds == 9 or seconds == 8:
+            elif seconds ==9 or seconds==8:
                 self.time_duration3 = "{0}:{1}".format(self.minutes, self.seconds + 2)
 
             elif seconds == 0:
@@ -115,19 +114,22 @@ def artist(link):
 
 
 def searchalbum(track):
+
     results = spotifyy.search(track)
     return results['tracks']['items'][0]['album']['external_urls']['spotify']
 
+        
+
 
 def searchsingle(track):
+
     results = spotifyy.search(track)
     return results['tracks']['items'][0]['href']
 
 
 def searchartist(searchstr):
+
     results = spotifyy.search(searchstr)
     return results['tracks']['items'][0]['artists'][0]["external_urls"]['spotify']
-
-
 
 
