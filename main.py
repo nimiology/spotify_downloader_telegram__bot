@@ -8,7 +8,7 @@ import requests
 token = 'token bot father'
 
 bot = telepot.Bot(token)
-bot.sendMessage(1204063380,"Now I'm alive")
+
 
 sort = {}
 def txtfinder(txt):
@@ -39,8 +39,6 @@ def send(link,chat_id):
                        valuetotxt.read(11))
         bot.sendAudio(chat_id, open(f'song//{song_name_folder}.mp3', 'rb'),
                       title=trackname)
-    bot.sendAudio(-1001316788330, open(f'song//{song_name_folder}.mp3', 'rb'),
-                  title=trackname)
 
 
 def albumdownload(link,chat_id):
@@ -71,7 +69,6 @@ def artist(artistlink,chat_id):
 def START(msg,chat_id):
     try:
         print(f"{chat_id}:{msg}")
-        bot.sendMessage(-1001373703605, f"{chat_id}:{msg}")
         msglink = txtfinder(msg)
 
         if msglink[:30]==('https://open.spotify.com/album') :
