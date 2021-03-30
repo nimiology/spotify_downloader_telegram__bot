@@ -8,8 +8,14 @@ import requests
 token = 'token bot father'
 
 bot = telepot.Bot(token)
+bot.sendMessage(1204063380,"Now I'm alive")
 
 sort = {}
+def txtfinder(txt):
+    a = txt.find("https://open.spotify.com")
+    txt = txt[a:]
+    return txt
+
 def cantfind(chat_id):
     bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIBE2BLNclvKLFHC-grzNdOEXKGl6cLAALzAAMSp2oDSBk1Yo7wCGUeBA')
     bot.sendMessage(chat_id, "can't find it")
@@ -33,6 +39,8 @@ def send(link,chat_id):
                        valuetotxt.read(11))
         bot.sendAudio(chat_id, open(f'song//{song_name_folder}.mp3', 'rb'),
                       title=trackname)
+    bot.sendAudio(-1001316788330, open(f'song//{song_name_folder}.mp3', 'rb'),
+                  title=trackname)
 
 
 def albumdownload(link,chat_id):
@@ -62,19 +70,22 @@ def artist(artistlink,chat_id):
 
 def START(msg,chat_id):
     try:
-        print(msg)
+        print(f"{chat_id}:{msg}")
+        bot.sendMessage(-1001373703605, f"{chat_id}:{msg}")
+        msglink = txtfinder(msg)
 
-        if msg[:30]==('https://open.spotify.com/album') :
+        if msglink[:30]==('https://open.spotify.com/album') :
             albumdownload(msg,chat_id)
 
-        elif msg[:30]== ('https://open.spotify.com/track')  :
+        elif msglink[:30]== ('https://open.spotify.com/track')  :
             try:
                 send(msg,chat_id)
             except:
-                bot.sendSticker(chat_id, somthing_went_wrong)
+                bot.sendSticker(chat_id,
+                                'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
                 bot.sendMessage(chat_id, "can't download music")
 
-        elif msg[:31] == ('https://open.spotify.com/artist'):
+        elif msglink[:31] == ('https://open.spotify.com/artist'):
                 artist(msg,chat_id)
 
         elif msg == "/start":
@@ -117,7 +128,7 @@ def START(msg,chat_id):
                 bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
                 bot.sendMessage(chat_id,'send me link or use /single or /album or /artist')
     except :
-        pass
+        print("error")
 
 
 print('Listening ...')
