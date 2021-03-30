@@ -32,7 +32,6 @@ def search(NAME,TIME1,TIME2,TIME3,TIME4):
         except:
             pass
 
-    global yt_pre
     yt_pre = str("https://www.youtube.com/" + LINKASLI)
     print(yt_pre)
 
