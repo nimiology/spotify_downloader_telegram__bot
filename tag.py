@@ -3,10 +3,7 @@ import eyed3
 import lyricsgenius
 from valuetotxt import read
 
-
 genius = lyricsgenius.Genius('your genius token')
-
-
 
 def tag():
 
