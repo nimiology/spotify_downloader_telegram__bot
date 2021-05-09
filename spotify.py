@@ -118,7 +118,9 @@ def searchalbum(track):
     results = spotifyy.search(track)
     return results['tracks']['items'][0]['album']['external_urls']['spotify']
 
-        
+def playlist(link):
+    results = spotifyy.playlist_tracks(link)
+    return results['items']
 
 
 def searchsingle(track):
