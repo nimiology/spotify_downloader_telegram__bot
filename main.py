@@ -66,6 +66,19 @@ def artist(artistlink,chat_id):
             cantfindone(chat_id)
 
 
+def playlist(link,chat_id):
+    playlistlinks = ""
+    for song in spotify.playlist(link):
+        song = song['track']
+        playlistlinks += song['name'] + " :\n " + song['external_urls']['spotify'] + '\n\n'
+    bot.sendMessage(chat_id, playlistlinks)
+    for song in spotify.playlist(link):
+        song = song['track']
+        try:
+            send(song['href'], chat_id)
+        except:
+            cantfindone(chat_id)
+            
 def START(msg,chat_id):
     try:
         print(f"{chat_id}:{msg}")
@@ -73,6 +86,10 @@ def START(msg,chat_id):
 
         if msglink[:30]==('https://open.spotify.com/album') :
             albumdownload(msg,chat_id)
+            
+        
+        elif msg[:33] == ('https://open.spotify.com/playlist'):
+            playlist(msg,chat_id)
 
         elif msglink[:30]== ('https://open.spotify.com/track')  :
             try:
