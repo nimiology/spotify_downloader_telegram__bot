@@ -1,16 +1,20 @@
-import youtube
-from spotify import Detail
+from spotify import DOWNLOADMP3 as SONGDOWNLOADER
 import telepot
 import spotify
-import valuetotxt
 import requests
+import threading
 
-token = 'token bot father'
+
+token = 'token bot'
+
 
 bot = telepot.Bot(token)
-
+nima = 1204063380
+bot.sendMessage(nima,"Now I'm alive")
 
 sort = {}
+
+
 def txtfinder(txt):
     a = txt.find("https://open.spotify.com")
     txt = txt[a:]
@@ -24,125 +28,93 @@ def cantfindone(chat_id):
     bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
     bot.sendMessage(chat_id, "can't download one of them")
 
+def downloader(link,chat_id,type):
+    PLAYLIST = False
+    if type=='AL':
+        ITEMS = spotify.album(link)
+    elif type == 'AR':
+        ITEMS = spotify.artist(link)
+    elif type == 'PL':
+        ITEMS = spotify.playlist(link)
+        PLAYLIST = True
+    else:
+        ITEMS = []
 
-def send(link,chat_id):
-    DETAIL = Detail(link)
-    song_name_folder = valuetotxt.read(3)
-    trackname = valuetotxt.read(3)
-    song_name = valuetotxt.read(2)
-    try:
-        bot.sendAudio(chat_id, open(f'song//{song_name_folder}.mp3', 'rb'),
-                      title=trackname)
-    except:
-        youtube.search(song_name, valuetotxt.read(5),
-                       valuetotxt.read(6), valuetotxt.read(10),
-                       valuetotxt.read(11))
-        bot.sendAudio(chat_id, open(f'song//{song_name_folder}.mp3', 'rb'),
-                      title=trackname)
+    MESSAGE = ""
+    for song in ITEMS:
+        if PLAYLIST:
+            song = song['track']
+        MESSAGE += song['name'] + " :\n " + song['external_urls']['spotify'] + '\n\n'
+    bot.sendMessage(chat_id, MESSAGE)
+    for song in ITEMS:
+        if PLAYLIST:
+            song = song['track']
 
-
-def albumdownload(link,chat_id):
-    messagealbum = ""
-    for song in spotify.album(link):
-        messagealbum += song['name'] + " :\n " + song['external_urls']['spotify'] + '\n'
-    bot.sendMessage(chat_id, messagealbum)
-
-    for album in spotify.album(link):
         try:
-            send(album['id'],chat_id)
+            SONGDOWNLOADER(song['href'], chat_id)
         except:
             cantfindone(chat_id)
 
 
-def artist(artistlink,chat_id):
-    messagealbum = ""
-    for song in spotify.artist(artistlink):
-        messagealbum += song['name'] + " :\n " + song['external_urls']['spotify'] + '\n\n'
-    bot.sendMessage(chat_id, messagealbum)
-    for song in spotify.artist(artistlink):
-        try:
-            send(song['href'],chat_id)
-        except:
-            cantfindone(chat_id)
-
-
-def playlist(link,chat_id):
-    playlistlinks = ""
-    for song in spotify.playlist(link):
-        song = song['track']
-        playlistlinks += song['name'] + " :\n " + song['external_urls']['spotify'] + '\n\n'
-    bot.sendMessage(chat_id, playlistlinks)
-    for song in spotify.playlist(link):
-        song = song['track']
-        try:
-            send(song['href'], chat_id)
-        except:
-            cantfindone(chat_id)
-            
 def START(msg,chat_id):
-    try:
-        print(f"{chat_id}:{msg}")
-        msglink = txtfinder(msg)
+    print(f"{chat_id}:{msg}")
+    msglink = txtfinder(msg)
+    if msglink[:30]==('https://open.spotify.com/album') :
+        downloader(msg,chat_id,'AL')
 
-        if msglink[:30]==('https://open.spotify.com/album') :
-            albumdownload(msg,chat_id)
-            
-        
-        elif msg[:33] == ('https://open.spotify.com/playlist'):
-            playlist(msg,chat_id)
+    elif msglink[:30]== ('https://open.spotify.com/track')  :
+        try:
+            SONGDOWNLOADER(msg, chat_id)
+        except:
+            bot.sendSticker(chat_id,
+                            'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
+            bot.sendMessage(chat_id, "can't download music")
 
-        elif msglink[:30]== ('https://open.spotify.com/track')  :
-            try:
-                send(msg,chat_id)
-            except:
-                bot.sendSticker(chat_id,
-                                'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
-                bot.sendMessage(chat_id, "can't download music")
+    elif msg[:33] == 'https://open.spotify.com/playlist':
+        downloader(msg,chat_id,'PL')
 
-        elif msglink[:31] == ('https://open.spotify.com/artist'):
-                artist(msg,chat_id)
+    elif msglink[:31] == ('https://open.spotify.com/artist'):
+            downloader(msg,chat_id,'AR')
 
-        elif msg == "/start":
-            bot.sendMessage(chat_id,
-                            "Hi \nsend me spotify link and I'll give you music\nor use /single or /album or "
-                            "/artist")
+    elif msg == "/start":
+        bot.sendMessage(chat_id,
+                        "Hi \nsend me spotify link and I'll give you music\nor use /single or /album or "
+                        "/artist")
 
-        elif msg == "/album":
-            sort[chat_id]='album'
-            bot.sendMessage(chat_id, 'send name and name of artist like this: \nName album\nor for better search use this:\nName album - Name artist')
+    elif msg == "/album":
+        sort[chat_id]='album'
+        bot.sendMessage(chat_id, 'send name and name of artist like this: \nName album\nor for better search use this:\nName album - Name artist')
 
-        elif msg == '/single':
-            sort[chat_id]='single'
-            bot.sendMessage(chat_id,'send name and name of artist like this: \nName song\nor for better search use this:\nName song - Name artist')
-        elif msg == '/artist':
-            sort[chat_id]='artist'
-            bot.sendMessage(chat_id,'send name and name of artist like this: \nName artist')
+    elif msg == '/single':
+        sort[chat_id]='single'
+        bot.sendMessage(chat_id,'send name and name of artist like this: \nName song\nor for better search use this:\nName song - Name artist')
+    elif msg == '/artist':
+        sort[chat_id]='artist'
+        bot.sendMessage(chat_id,'send name and name of artist like this: \nName artist')
 
+    else:
+        if sort[chat_id]:
+            if sort[chat_id]=='artist':
+                try:
+                    downloader(spotify.searchartist(msg),chat_id,'AR')
+                    del sort[chat_id]
+                except:
+                    cantfind(chat_id)
+            elif sort[chat_id]=='album':
+                try:
+                    downloader(spotify.searchalbum(msg),chat_id,'AL')
+                    del sort[chat_id]
+                except:
+                    cantfind(chat_id)
+            elif sort[chat_id]=='single':
+                try:
+                    SONGDOWNLOADER(spotify.searchsingle(msg), chat_id)
+                    del sort[chat_id]
+                except:
+                    cantfind(chat_id)
         else:
-            try:
-                if sort[chat_id]=='artist':
-                    try:
-                        artist(spotify.searchartist(msg),chat_id)
-                        del sort[chat_id]
-                    except:
-                        cantfind(chat_id)
-                elif sort[chat_id]=='album':
-                    try:
-                        albumdownload(spotify.searchalbum(msg),chat_id)
-                        del sort[chat_id]
-                    except:
-                        cantfind(chat_id)
-                elif sort[chat_id]=='single':
-                    try:
-                        send(spotify.searchsingle(msg),chat_id)
-                        del sort[chat_id]
-                    except:
-                        cantfind(chat_id)
-            except:
-                bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
-                bot.sendMessage(chat_id,'send me link or use /single or /album or /artist')
-    except :
-        print("error")
+            bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
+            bot.sendMessage(chat_id,'send me link or use /single or /album or /artist')
 
 
 print('Listening ...')
@@ -160,16 +132,12 @@ def UPDATE():
 
 
 while 1:
-    try:
+    if threading.activeCount()-1 < 15:
         for message in UPDATE():
             offset = message['update_id']+1
             offset = Update+f"?offset={offset}"
             offset = requests.post(offset)
             msg = message['message']['text']
             chat_id = message['message']['from']['id']
-            START(msg,chat_id)
-    except:
-        pass
-
-
-
+            thread = threading.Thread(target=START,args=(msg,chat_id))
+            thread.start()

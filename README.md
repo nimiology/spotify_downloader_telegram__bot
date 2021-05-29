@@ -9,13 +9,13 @@
 <h1>usage</h1>
 <h3>open terminal and write this command</h3>
 <pre>pip install -r requirements.txt</pre>
-<h3>open @BotFather(t.me/BotFather) bot in your telegram and create your new bot and add your token here in main.py
+<h3>open @BotFather(t.me/BotFather) bot in your telegram and create your new bot and add your token here in main.py and spotify.py
 </h3>
 <pre>token = 'token bot'</pre>
-<h3>Now go to www.docs.genius.com and get your Genius API token and add it to this line to detail.py</h3>
+<h3>Now go to www.docs.genius.com and get your Genius API token and add it to this line to spotify.py
 <pre> genius = lyricsgenius.Genius(' genius api token  ') </pre>
 
-<h3>After that go to www.developer.spotify.com and get your CLIENT ID & CLIENT SECRET and add them to this lines in youtube.py </h3>
+<h3>After that go to www.developer.spotify.com and get your CLIENT ID & CLIENT SECRET and add them to this lines in spotify.py </h3>
 <pre>spotifyy = spotipy.Spotify(
     client_credentials_manager=SpotifyClientCredentials(client_id='client id spotify',
                                                         client_secret='client secret spotify'))</pre>
