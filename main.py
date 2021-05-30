@@ -93,7 +93,7 @@ def START(msg,chat_id):
         bot.sendMessage(chat_id,'send name and name of artist like this: \nName artist')
 
     else:
-        if sort[chat_id]:
+        try:
             if sort[chat_id]=='artist':
                 try:
                     downloader(spotify.searchartist(msg),chat_id,'AR')
@@ -112,7 +112,7 @@ def START(msg,chat_id):
                     del sort[chat_id]
                 except:
                     cantfind(chat_id)
-        else:
+        except:
             bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
             bot.sendMessage(chat_id,'send me link or use /single or /album or /artist')
 
