@@ -133,11 +133,14 @@ def UPDATE():
 
 while 1:
     if threading.activeCount()-1 < 15:
-        for message in UPDATE():
-            offset = message['update_id']+1
-            offset = Update+f"?offset={offset}"
-            offset = requests.post(offset)
-            msg = message['message']['text']
-            chat_id = message['message']['from']['id']
-            thread = threading.Thread(target=START,args=(msg,chat_id))
-            thread.start()
+        try:
+            for message in UPDATE():
+                offset = message['update_id']+1
+                offset = Update+f"?offset={offset}"
+                offset = requests.post(offset)
+                msg = message['message']['text']
+                chat_id = message['message']['from']['id']
+                thread = threading.Thread(target=START,args=(msg,chat_id))
+                thread.start()
+        except:
+            pass
