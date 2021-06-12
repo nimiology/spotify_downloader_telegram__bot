@@ -6,11 +6,7 @@ import threading
 
 
 token = 'token bot'
-
-
 bot = telepot.Bot(token)
-nima = 1204063380
-bot.sendMessage(nima,"Now I'm alive")
 
 sort = {}
 
