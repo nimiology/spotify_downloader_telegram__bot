@@ -19,7 +19,7 @@ token = 'token bot'
 bot = telepot.Bot(token)
 
 def DOWNLOADMP3(link,chat_id):
-    #Get Meta DAta
+    #Get MetaData
     results = spotifyy.track(link)
     song = results['name']
     print('[Spotify]MetaData Found!')
