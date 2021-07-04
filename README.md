@@ -9,7 +9,7 @@
 <h1>usage</h1>
 <h3>open terminal and write this command</h3>
 <pre>pip install -r requirements.txt</pre>
-<h3>open @BotFather(t.me/BotFather) bot in your telegram and create your new bot and add your token here in main.py and spotify.py
+<h3>open @BotFather(t.me/BotFather) bot in telegram and create your new bot and add your token here in main.py and spotify.py
 </h3>
 <pre>token = 'token bot'</pre>
 
