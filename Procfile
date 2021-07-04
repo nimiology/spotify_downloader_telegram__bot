@@ -1,0 +1,1 @@
+python: work main.py
