@@ -8,7 +8,7 @@ import eyed3.id3
 import eyed3
 import lyricsgenius
 import telepot
-import os
+
 
 spotifyy = spotipy.Spotify(
     client_credentials_manager=SpotifyClientCredentials(client_id='a145db3dcd564b9592dacf10649e4ed5',
@@ -16,7 +16,7 @@ spotifyy = spotipy.Spotify(
 genius = lyricsgenius.Genius('biZZReO7F98mji5oz3cE0FiIG73Hh07qoXSIzYSGNN3GBsnY-eUrPAVSdJk_0_de')
 
 
-token = os.environ.get('BOT_TOKEN')
+token = 'token bot'
 bot = telepot.Bot(token)
 
 def DOWNLOADMP3(link,chat_id):
