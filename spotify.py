@@ -20,10 +20,8 @@ token = 'token bot'
 bot = telepot.Bot(token)
 
 def DOWNLOADMP3(link,chat_id):
-    #Get MetaData
     results = spotifyy.track(link)
     song = results['name']
-    print('[Spotify]MetaData Found!')
     artist = results['artists'][0]['name']
     YTSEARCH = str(song + " " + artist)
     artistfinder = results['artists']
@@ -46,52 +44,38 @@ def DOWNLOADMP3(link,chat_id):
     else:
         fetures = ""
 
-    time_duration = ""
-    time_duration1 = ""
-    time_duration2 = ""
-    time_duration3 = ""
     millis = results['duration_ms']
     millis = int(millis)
     seconds = (millis / 1000) % 60
     minutes = (millis / (1000 * 60)) % 60
     seconds = int(seconds)
     minutes = int(minutes)
+
     if seconds >= 10:
-        if seconds < 59:
-            time_duration = "{0}:{1}".format(minutes, seconds)
-            time_duration1 = "{0}:{1}".format(minutes, seconds + 1)
-            time_duration2 = "{0}:{1}".format(minutes, seconds - 1)
-            if seconds == 10:
-                time_duration2 = "{0}:0{1}".format(minutes, seconds - 1)
-                time_duration3 = "{0}:{1}".format(minutes, seconds + 2)
-            elif seconds < 58:
-                time_duration3 = "{0}:{1}".format(minutes, seconds + 2)
-                time_duration2 = "{0}:{1}".format(minutes, seconds - 1)
-            elif seconds == 58:
-                time_duration3 = "{0}:0{1}".format(minutes + 1, seconds - 58)
-                time_duration2 = "{0}:{1}".format(minutes, seconds - 1)
-            else:
-                time_duration2 = "{0}:{1}".format(minutes, seconds - 1)
-        else:
-            time_duration1 = "{0}:0{1}".format(minutes + 1, seconds - 59)
+        time_duration = "{0}:{1}".format(minutes, seconds)
+        time_duration1 = "{0}:{1}".format(minutes, seconds + 1)
+        time_duration2 = "{0}:{1}".format(minutes, seconds - 1)
+        time_duration3 = "{0}:{1}".format(minutes, seconds + 2)
+
+        if seconds == 10:
+            time_duration2 = "{0}:0{1}".format(minutes, seconds - 1)
+        elif seconds == 58 or seconds == 59:
+            time_duration3 = "{0}:0{1}".format(minutes + 1, seconds - 58)
             if seconds == 59:
-                time_duration3 = "{0}:0{1}".format(minutes + 1, seconds - 58)
+                time_duration1 = "{0}:0{1}".format(minutes + 1, seconds - 59)
+
     else:
         time_duration = "{0}:0{1}".format(minutes, seconds)
         time_duration1 = "{0}:0{1}".format(minutes, seconds + 1)
-
-        if seconds < 8:
-            time_duration3 = "{0}:0{1}".format(minutes, seconds + 2)
-            time_duration2 = "{0}:0{1}".format(minutes, seconds - 1)
-        elif seconds == 9 or seconds == 8:
+        time_duration2 = "{0}:0{1}".format(minutes, seconds - 1)
+        time_duration3 = "{0}:0{1}".format(minutes, seconds + 2)
+        if seconds == 9 or seconds == 8:
             time_duration3 = "{0}:{1}".format(minutes, seconds + 2)
+            if seconds == 9:
+                time_duration1 = "{0}:{1}".format(minutes, seconds + 1)
 
         elif seconds == 0:
             time_duration2 = "{0}:{1}".format(minutes - 1, seconds + 59)
-            time_duration3 = "{0}:0{1}".format(minutes, seconds + 2)
-        else:
-            time_duration2 = "{0}:0{1}".format(minutes, seconds - 1)
-            time_duration3 = "{0}:0{1}".format(minutes, seconds + 2)
 
     trackname = song + fetures
     #Download Cover
@@ -114,9 +98,6 @@ def DOWNLOADMP3(link,chat_id):
             break
 
     YTLINK = str("https://www.youtube.com/" + LINKASLI)
-    print('[Youtube]song found!')
-    print(f'[Youtube]Link song on youtube : {YTLINK}')
-    #Donwload Music from youtube
     options = {
         # PERMANENT options
         'format': 'bestaudio/best',
@@ -133,7 +114,6 @@ def DOWNLOADMP3(link,chat_id):
         mp3.download([YTLINK])
 
     aud = eyed3.load(f"song//{trackname}.mp3")
-    print('[Youtube]Song Downloaded!')
     aud.tag.artist = artist
     aud.tag.album = album
     aud.tag.album_artist = artist
@@ -143,12 +123,12 @@ def DOWNLOADMP3(link,chat_id):
     try:
         songok = genius.search_song(song, artist)
         aud.tag.lyrics.set(songok.lyrics)
-        print('[Genius]Song lyric Found!')
     except:
         print('[Genius]Song lyric NOT Found!')
     aud.tag.images.set(3, open("songpicts//" + trackname + ".png", 'rb').read(), 'image/png')
     aud.tag.save()
-    bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname)
+    CAPTION = f'Track: {song}\nAlbum: {album}\nArtist: {artist}'
+    bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
     print('[Telegram]Song sent!')
 
 
