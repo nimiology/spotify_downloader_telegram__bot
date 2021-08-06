@@ -1,6 +1,9 @@
 # spotify-downloader 🎵
 
 <b>This simple Python Script allows you to download songs or albums from spotify</b>
+## Deploy on Herolu Fast 👇
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/nimiology/spotify_downloader_telegram__bot/tree/Heroku)
+
 ## My bot 👇
 [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white&label=Spotdl)](https://t.me/spotdlmp3_bot)
 
