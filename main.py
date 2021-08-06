@@ -3,9 +3,13 @@ import telepot
 import spotify
 import requests
 import threading
+import os
 
+if 'BOT_TOKEN' in os.environ:
+    token = os.environ.get('BOT_TOKEN')
+else:
+    token = 'token bot'
 
-token = 'token bot'
 bot = telepot.Bot(token)
 
 sort = {}
