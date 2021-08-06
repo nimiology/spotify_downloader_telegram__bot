@@ -37,10 +37,12 @@ def downloader(link,chat_id,type):
         ITEMS = []
 
     MESSAGE = ""
+    COUNT = 0
     for song in ITEMS:
         if PLAYLIST:
             song = song['track']
-        MESSAGE += song['name'] + " :\n " + song['external_urls']['spotify'] + '\n\n'
+        COUNT+=1
+        MESSAGE += f"{COUNT}. {song['name']}\n"
     bot.sendMessage(chat_id, MESSAGE)
     for song in ITEMS:
         if PLAYLIST:
