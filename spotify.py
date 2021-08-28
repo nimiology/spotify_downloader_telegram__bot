@@ -30,7 +30,7 @@ def DOWNLOADMP3(link,chat_id):
     realese_date = int(results['album']['release_date'][:4])
 
     if len(artistfinder) > 1:
-        fetures = "( Ft."
+        fetures = "(Ft."
         for lomi in range(0, len(artistfinder)):
             try:
                 if lomi < len(artistfinder) - 2:
@@ -78,58 +78,67 @@ def DOWNLOADMP3(link,chat_id):
             time_duration2 = "{0}:{1}".format(minutes - 1, seconds + 59)
 
     trackname = song + fetures
-    #Download Cover
+
     response = requests.get(results['album']['images'][0]['url'])
     DIRCOVER = "songpicts//" + trackname + ".png"
     file = open(DIRCOVER, "wb")
     file.write(response.content)
     file.close()
-    #search for music on youtube
+
     results = list(YoutubeSearch(str(YTSEARCH)).to_dict())
-    LINKASLI = ''
-    for URLSSS in results:
-        timeyt = URLSSS["duration"]
-        print(URLSSS['title'])
-        if timeyt == time_duration or timeyt == time_duration1:
-            LINKASLI = URLSSS['url_suffix']
-            break
-        elif timeyt == time_duration2 or timeyt == time_duration3:
-            LINKASLI = URLSSS['url_suffix']
-            break
-
-    YTLINK = str("https://www.youtube.com/" + LINKASLI)
-    options = {
-        # PERMANENT options
-        'format': 'bestaudio/best',
-        'keepvideo': False,
-        'outtmpl': f'song//{trackname}.*',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '320'
-        }]
-    }
-
-    with youtube_dl.YoutubeDL(options) as mp3:
-        mp3.download([YTLINK])
-
-    aud = eyed3.load(f"song//{trackname}.mp3")
-    aud.tag.artist = artist
-    aud.tag.album = album
-    aud.tag.album_artist = artist
-    aud.tag.title = trackname
-    aud.tag.track_num = tracknum
-    aud.tag.year = realese_date
     try:
-        songok = genius.search_song(song, artist)
-        aud.tag.lyrics.set(songok.lyrics)
+        LINKASLI = ''
+
+        for URLSSS in results:
+            timeyt = URLSSS["duration"]
+            if timeyt == time_duration or timeyt == time_duration1:
+                LINKASLI = URLSSS['url_suffix']
+                break
+            elif timeyt == time_duration2 or timeyt == time_duration3:
+                LINKASLI = URLSSS['url_suffix']
+                break
+
+        YTLINK = str("https://www.youtube.com/" + LINKASLI)
+        print(YTLINK)
+
+        options = {
+            # PERMANENT options
+            'format': 'bestaudio/best',
+            'keepvideo': False,
+            'outtmpl': f'song//{trackname}.*',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '320'
+            }],
+
+            # (OPTIONAL options)
+            'noplaylist': True
+        }
+
+        with youtube_dl.YoutubeDL(options) as mp3:
+            mp3.download([YTLINK])
+
+        aud = eyed3.load(f"song//{trackname}.mp3")
+        aud.tag.artist = artist
+        aud.tag.album = album
+        aud.tag.album_artist = artist
+        aud.tag.title = trackname
+        aud.tag.track_num = tracknum
+        aud.tag.year = realese_date
+        try:
+            songok = genius.search_song(song, artist)
+            aud.tag.lyrics.set(songok.lyrics)
+        except:
+            pass
+        aud.tag.images.set(3, open("songpicts//" + trackname + ".png", 'rb').read(), 'image/png')
+        aud.tag.save()
+        CAPTION = f'Track: {song}\nAlbum: {album}\nArtist: {artist}'
+        bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
+
     except:
-        print('[Genius]Song lyric NOT Found!')
-    aud.tag.images.set(3, open("songpicts//" + trackname + ".png", 'rb').read(), 'image/png')
-    aud.tag.save()
-    CAPTION = f'Track: {song}\nAlbum: {album}\nArtist: {artist}'
-    bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
-    print('[Telegram]Song sent!')
+        bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
+        bot.sendMessage(chat_id, f'404 "{song}" Not Found')
 
 
 def album(link):
