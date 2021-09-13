@@ -22,7 +22,7 @@ else:
 
 bot = telepot.Bot(token)
 
-def DOWNLOADMP3(link,chat_id,-1001234144318):
+def DOWNLOADMP3(link,chat_id,):
     #Get MetaData
     results = spotifyy.track(link)
     song = results['name']
