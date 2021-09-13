@@ -22,7 +22,7 @@ else:
 
 bot = telepot.Bot(token)
 
-def DOWNLOADMP3(link,1001234144318):
+def DOWNLOADMP3(link,chat_id):
     #Get MetaData
     results = spotifyy.track(link)
     song = results['name']
@@ -135,7 +135,7 @@ def DOWNLOADMP3(link,1001234144318):
     aud.tag.images.set(3, open("songpicts//" + trackname + ".png", 'rb').read(), 'image/png')
     aud.tag.save()
     CAPTION = f'Track: {song}\nAlbum: {album}\nArtist: {artist}'
-    bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
+    bot.sendAudio(1001234144318, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
     print('[Telegram]Song sent!')
 
 
