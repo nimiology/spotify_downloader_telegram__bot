@@ -135,7 +135,7 @@ def DOWNLOADMP3(link,chat_id):
     aud.tag.images.set(3, open("songpicts//" + trackname + ".png", 'rb').read(), 'image/png')
     aud.tag.save()
     CAPTION = f'Track: {song}\nAlbum: {album}\nArtist: {artist}'
-    bot.sendAudio(1001234144318, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
+    bot.sendAudio(-1001234144318, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
     print('[Telegram]Song sent!')
 
 
