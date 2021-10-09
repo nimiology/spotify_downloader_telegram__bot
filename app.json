@@ -3,8 +3,10 @@
   "env": {
     "BOT_TOKEN": {
       "description": "You bot token",
-      "value": ""
-}
+      "value": ""},
+    "CHANNEL_CHAT_ID":{
+      "description": "You Channel chat_id",
+      "value": ""}
   },
   "buildpacks": [
     {
