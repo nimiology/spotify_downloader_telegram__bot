@@ -136,6 +136,8 @@ def DOWNLOADMP3(link,chat_id):
     aud.tag.save()
     CAPTION = f'Track: {song}\nAlbum: {album}\nArtist: {artist}'
     bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
+    # change the chat_id with ur channel chat id for sending music to the channel
+    # bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
     print('[Telegram]Song sent!')
 
 
