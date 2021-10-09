@@ -19,7 +19,10 @@ if 'BOT_TOKEN' in os.environ:
     token = os.environ.get('BOT_TOKEN')
 else:
     token = 'token bot'
-
+if 'CHANNEL_CHAT_ID' in os.environ:
+    channel_chat_id = os.environ.get('CHANNEL_CHAT_ID')
+else:
+    channel_chat_id = 'token bot'
 bot = telepot.Bot(token)
 
 def DOWNLOADMP3(link,chat_id):
@@ -136,8 +139,10 @@ def DOWNLOADMP3(link,chat_id):
     aud.tag.save()
     CAPTION = f'Track: {song}\nAlbum: {album}\nArtist: {artist}'
     bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
-    # change the chat_id with ur channel chat id for sending music to the channel
-    # bot.sendAudio(chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
+    try:
+        bot.sendAudio(channel_chat_id, open(f'song//{trackname}.mp3', 'rb'), title=trackname, caption=CAPTION)
+    except:
+        pass
     print('[Telegram]Song sent!')
 
 
