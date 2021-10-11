@@ -6,7 +6,7 @@ import threading
 import os
 
 if 'BOT_TOKEN' in os.environ:
-    token = os.environ.get('BOT_TOKEN')
+    token = os.environ.get('2055661757:AAERVoZwbC5M7lDbFVM43-SNZG8Ds6FufuI')
 else:
     token = 'token bot'
 
