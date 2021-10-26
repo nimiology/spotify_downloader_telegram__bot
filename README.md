@@ -1,6 +1,6 @@
 # spotify-downloader 🎵
 
-<b>This Python script let you to donwload mp3 with spotify link or song name from YouTube</b>
+<b>DISCLAIMER : THIS TUTORIAL IS FOR EDUCATION PURPOSES ONLY AND IS NOT INTENDED TO PROMOTE ANY ILLEGAL ACTIVITIES. THE AUTHOR WILL NOT BE HELD RESPONSIBLE FOR ANY MISUSE OF THE INFORMATION PROVIDED<br><br>This Python script let you to donwload mp3 with spotify link or song name from YouTube<br></b>
 ## Deploy to Heroku Fast 👇
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/nimiology/spotify_downloader_telegram__bot/tree/Heroku)
 
