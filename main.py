@@ -1,9 +1,8 @@
-from spotify import DOWNLOADMP3 as SONGDOWNLOADER
+from spotify import Song
 import telepot
 import spotify
 import requests
 import threading
-
 
 token = 'token bot'
 bot = telepot.Bot(token)
@@ -11,14 +10,10 @@ bot = telepot.Bot(token)
 sort = {}
 
 
-
 def txtfinder(txt):
     a = txt.find("https://open.spotify.com")
     txt = txt[a:]
     return txt
-
-
-
 
 
 def downloader(link, chat_id, type):
@@ -44,7 +39,7 @@ def downloader(link, chat_id, type):
         if type == 'PL':
             song = song['track']
 
-        SONGDOWNLOADER(song['href'], chat_id)
+        Song(song['href'], chat_id).Telegram()
 
 
 def START(msg, chat_id):
@@ -54,7 +49,7 @@ def START(msg, chat_id):
         downloader(msg, chat_id, 'AL')
 
     elif msglink[:30] == ('https://open.spotify.com/track'):
-        SONGDOWNLOADER(msg, chat_id)
+        Song(msg, chat_id).Telegram()
 
     elif msg[:33] == 'https://open.spotify.com/playlist':
         downloader(msg, chat_id, 'PL')
@@ -63,7 +58,8 @@ def START(msg, chat_id):
         downloader(msg, chat_id, 'AR')
 
     elif msg == "/start":
-        bot.sendMessage(chat_id,"Hi \nsend me spotify link and I'll give you music\nor use /single or /album or /artist")
+        bot.sendMessage(chat_id,
+                        "Hi \nsend me spotify link and I'll give you music\nor use /single or /album or /artist")
 
 
     elif msg == "/album":
@@ -87,7 +83,7 @@ def START(msg, chat_id):
                 elif sort[chat_id] == 'album':
                     downloader(spotify.searchalbum(msg), chat_id, 'AL')
                 elif sort[chat_id] == 'single':
-                    SONGDOWNLOADER(spotify.searchsingle(msg), chat_id)
+                    Song(spotify.searchsingle(msg), chat_id).Telegram()
 
                 del sort[chat_id]
 
@@ -97,15 +93,13 @@ def START(msg, chat_id):
 
         else:
             bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
-            bot.sendMessage(chat_id,'send me link or use /single or /album or /artist')
+            bot.sendMessage(chat_id, 'send me link or use /single or /album or /artist')
+
 
 print('Listening ...')
 
-
-
-
 tokenurl = f'https://api.telegram.org/bot{token}'
-Update = tokenurl+"/getUpdates"
+Update = tokenurl + "/getUpdates"
 
 
 def UPDATE():
@@ -114,15 +108,15 @@ def UPDATE():
 
 
 while 1:
-    if threading.activeCount()-1 < 15:
+    if threading.activeCount() - 1 < 15:
         try:
             for message in UPDATE():
-                offset = message['update_id']+1
-                offset = Update+f"?offset={offset}"
+                offset = message['update_id'] + 1
+                offset = Update + f"?offset={offset}"
                 offset = requests.post(offset)
                 msg = message['message']['text']
                 chat_id = message['message']['from']['id']
-                thread = threading.Thread(target=START,args=(msg,chat_id))
+                thread = threading.Thread(target=START, args=(msg, chat_id))
                 thread.start()
         except:
             pass
