@@ -76,7 +76,7 @@ def START(msg, chat_id):
         bot.sendMessage(chat_id, 'send name and name of artist like this: \nName artist')
 
     else:
-        if sort[chat_id]:
+        if chat_id in sort:
             try:
                 if sort[chat_id] == 'artist':
                     downloader(spotify.searchartist(msg), chat_id, 'AR')

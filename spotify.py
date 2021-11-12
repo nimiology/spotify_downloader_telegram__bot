@@ -147,6 +147,9 @@ class Song:
             caption = f'Track: {self.trackName}\nAlbum: {self.album}\nArtist: {self.artist}'
             bot.sendAudio(self.chat_id, open(f'song//{self.trackName}.mp3', 'rb'), title=self.trackName,
                           caption=caption)
+        # change the chat_id with ur channel chat id for sending music to the channel
+        #     bot.sendAudio(self.chat_id, open(f'song//{self.trackName}.mp3', 'rb'), title=self.trackName,
+        #                     caption=caption)
         else:
             bot.sendSticker(self.chat_id, 'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
             bot.sendMessage(self.chat_id, f'404\n"{self.trackName}" Not Found')
