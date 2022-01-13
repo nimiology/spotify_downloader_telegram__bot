@@ -1,22 +1,15 @@
-from spotify import Song
-import telepot
+from telegram import Update
+from telegram.ext import Updater, CallbackContext, CommandHandler, MessageHandler, Filters
 import spotify
-import requests
-import threading
-
-token = 'token bot'
-bot = telepot.Bot(token)
-
-sort = {}
 
 
-def txtfinder(txt):
+def text_finder(txt):
     a = txt.find("https://open.spotify.com")
     txt = txt[a:]
     return txt
 
 
-def downloader(link, chat_id, type):
+def downloader(update, context, link, type):
     if type == 'AL':
         ITEMS = spotify.album(link)
     elif type == 'AR':
@@ -33,90 +26,110 @@ def downloader(link, chat_id, type):
             song = song['track']
         COUNT += 1
         MESSAGE += f"{COUNT}. {song['name']}\n"
-    bot.sendMessage(chat_id, MESSAGE)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=MESSAGE)
 
     for song in ITEMS:
         if type == 'PL':
             song = song['track']
+        download_song(update, context, song['href'])
 
-        Song(song['href'], chat_id).Telegram()
+
+def download_song(update, context, link):
+    song = spotify.Song(link)
+    song.YTLink()
+    try:
+        song.YTDownload()
+        song.SongMetaData()
+        caption = f'Track: {song.trackName}\nAlbum: {song.album}\nArtist: {song.artist}'
+        context.bot.send_audio(chat_id=update.effective_chat.id, audio=open(f'{song.trackName}.mp3', 'rb'),
+                               caption=caption, title=song.trackName)
+    except:
+        context.bot.send_sticker(chat_id=update.effective_chat.id,
+                                 sticker='CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
+        context.bot.send_message(chat_id=update.effective_chat.id, text=f'404\n"{song.trackName}" Not Found')
 
 
-def START(msg, chat_id):
-    print(f"{chat_id}:{msg}")
-    msglink = txtfinder(msg)
+WELCOME = '''Hi
+This is Nima's bot!
+You can use the command.'''
+ARTISTS_MESSAGE = '''send name and name of artist like this: Name artist'''
+SINGLE_MESSAGE = '''send name and name of artist like this:
+Name song
+or for better search use this:
+Name song - Name artist
+'''
+ALBUM_MESSAGE = '''send name and name of artist like this: 
+Name album
+or for better search use this:
+Name album - Name artist
+'''
+
+sort = {}
+telegram_token = 'token'
+profiles = ['wikipaintings', 'spirit_of_arte', 'mariocruz181', 'beautiful.classic.world', 'museo_virtuale_',
+            'darkgloomyart', 'classica.arte', 'classical._.art', 'statuegram', 'art']
+
+
+def start(update: Update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=WELCOME)
+
+def album(update: Update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=SINGLE_MESSAGE)
+    sort[update.effective_chat.id] = 'album'
+
+
+def artist(update: Update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=ARTISTS_MESSAGE)
+    sort[update.effective_chat.id] = 'artist'
+
+
+def single(update: Update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=SINGLE_MESSAGE)
+    sort[update.effective_chat.id] = 'single'
+
+
+def download(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    msg = update.message.text
+    msglink = text_finder(msg)
     if msglink[:30] == ('https://open.spotify.com/album'):
-        downloader(msg, chat_id, 'AL')
+        downloader(update, context, msg, 'AL')
 
     elif msglink[:30] == ('https://open.spotify.com/track'):
-        Song(msg, chat_id).Telegram()
+        download_song(update, context, msglink)
 
     elif msg[:33] == 'https://open.spotify.com/playlist':
-        downloader(msg, chat_id, 'PL')
+        downloader(update, context, msg, 'PL')
 
     elif msglink[:31] == ('https://open.spotify.com/artist'):
-        downloader(msg, chat_id, 'AR')
-
-    elif msg == "/start":
-        bot.sendMessage(chat_id,
-                        "Hi \nsend me spotify link and I'll give you music\nor use /single or /album or /artist")
-
-
-    elif msg == "/album":
-        sort[chat_id] = 'album'
-        bot.sendMessage(chat_id,
-                        'send name and name of artist like this: \nName album\nor for better search use this:\nName album - Name artist')
-
-    elif msg == '/single':
-        sort[chat_id] = 'single'
-        bot.sendMessage(chat_id,
-                        'send name and name of artist like this: \nName song\nor for better search use this:\nName song - Name artist')
-    elif msg == '/artist':
-        sort[chat_id] = 'artist'
-        bot.sendMessage(chat_id, 'send name and name of artist like this: \nName artist')
-
+        downloader(update, context, msg, 'AR')
     else:
         if chat_id in sort:
-            try:
-                if sort[chat_id] == 'artist':
-                    downloader(spotify.searchartist(msg), chat_id, 'AR')
-                elif sort[chat_id] == 'album':
-                    downloader(spotify.searchalbum(msg), chat_id, 'AL')
-                elif sort[chat_id] == 'single':
-                    Song(spotify.searchsingle(msg), chat_id).Telegram()
-
-                del sort[chat_id]
-
-            except:
-                bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
-                bot.sendMessage(chat_id, "can't download one of them")
-
+            if sort[chat_id] == 'artist':
+                downloader(update, context, spotify.searchartist(msg), 'AR')
+            elif sort[chat_id] == 'album':
+                downloader(update, context, spotify.searchalbum(msg), 'AL')
+            elif sort[chat_id] == 'single':
+                download_song(update, context, spotify.searchsingle(msg))
+            del sort[chat_id]
         else:
-            bot.sendSticker(chat_id, 'CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
-            bot.sendMessage(chat_id, 'send me link or use /single or /album or /artist')
+            context.bot.send_sticker(chat_id=update.effective_chat.id,
+                                     sticker='CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
+            context.bot.send_message(chat_id=update.effective_chat.id, text='send me a link or use the commands!')
 
+def run():
+    updater = Updater(token=telegram_token, use_context=True)
+    updater.start_polling()
+    dispatcher = updater.dispatcher
+    start_handler = CommandHandler('start', start)
+    album_handler = CommandHandler('album', album)
+    single_handler = CommandHandler('single', single)
+    artist_handler = CommandHandler('artist', artist)
+    download1_handler = MessageHandler(Filters.text & (~Filters.command), download)
 
-print('Listening ...')
-
-tokenurl = f'https://api.telegram.org/bot{token}'
-Update = tokenurl + "/getUpdates"
-
-
-def UPDATE():
-    MESSAGES = requests.get(Update).json()
-    return MESSAGES['result']
-
-
-while 1:
-    if threading.activeCount() - 1 < 15:
-        try:
-            for message in UPDATE():
-                offset = message['update_id'] + 1
-                offset = Update + f"?offset={offset}"
-                offset = requests.post(offset)
-                msg = message['message']['text']
-                chat_id = message['message']['from']['id']
-                thread = threading.Thread(target=START, args=(msg, chat_id))
-                thread.start()
-        except:
-            pass
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(album_handler)
+    dispatcher.add_handler(single_handler)
+    dispatcher.add_handler(artist_handler)
+    dispatcher.add_handler(download1_handler)
+    print('[TELEGRAM BOT] Listening...')

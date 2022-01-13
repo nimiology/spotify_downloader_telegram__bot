@@ -4,4 +4,4 @@ requests
 spotipy
 youtube_dl
 youtube_search
-telepot
+python-telegram-bot

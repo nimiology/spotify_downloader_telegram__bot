@@ -7,20 +7,15 @@ import youtube_dl
 import eyed3.id3
 import eyed3
 import lyricsgenius
-import telepot
 
 spotify = spotipy.Spotify(
     client_credentials_manager=SpotifyClientCredentials(client_id='a145db3dcd564b9592dacf10649e4ed5',
                                                         client_secret='389614e1ec874f17b8c99511c7baa2f6'))
 genius = lyricsgenius.Genius('biZZReO7F98mji5oz3cE0FiIG73Hh07qoXSIzYSGNN3GBsnY-eUrPAVSdJk_0_de')
 
-token = 'token bot'
-bot = telepot.Bot(token)
-
 
 class Song:
-    def __init__(self, link, chat_id):
-        self.chat_id = chat_id
+    def __init__(self, link):
         self.link = link
         self.song = spotify.track(link)
         self.trackName = self.song['name']
@@ -31,7 +26,6 @@ class Song:
         self.releaseDate = int(self.song['album']['release_date'][:4])
         self.duration = int(self.song['duration_ms'])
 
-    # find features
     def Features(self):
         if len(self.artists) > 1:
             features = "(Ft."
@@ -48,7 +42,6 @@ class Song:
             features = ""
         return features
 
-    # convert time duration
     def ConvertTimeDuration(self):
         seconds = (self.duration / 1000) % 60
         minutes = (self.duration / (1000 * 60)) % 60
@@ -82,16 +75,14 @@ class Song:
                 time_duration3 = "{0}:{1}".format(minutes - 1, seconds + 59)
         return time_duration1, time_duration2, time_duration3, time_duration4
 
-    # download song cover
     def DownloadSongCover(self):
         response = requests.get(self.song['album']['images'][0]['url'])
-        imageFileName = "songpicts/" + self.trackName + ".png"
+        imageFileName = self.trackName + ".png"
         image = open(imageFileName, "wb")
         image.write(response.content)
         image.close()
         return imageFileName
 
-    # search for youtube link
     def YTLink(self):
         results = list(YoutubeSearch(str(self.trackName + " " + self.artist)).to_dict())
         time_duration1, time_duration2, time_duration3, time_duration4 = self.ConvertTimeDuration()
@@ -106,13 +97,12 @@ class Song:
         YTLink = str("https://www.youtube.com/" + YTSlug)
         return YTLink
 
-    # download song
     def YTDownload(self):
         options = {
             # PERMANENT options
             'format': 'bestaudio/best',
             'keepvideo': False,
-            'outtmpl': f'song/{self.trackName}.*',
+            'outtmpl': f'{self.trackName}.*',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -123,9 +113,8 @@ class Song:
         with youtube_dl.YoutubeDL(options) as mp3:
             mp3.download([self.YTLink()])
 
-    # merge song metadata to song
     def SongMetaData(self):
-        mp3 = eyed3.load(f"song/{self.trackName}.mp3")
+        mp3 = eyed3.load(f"{self.trackName}.mp3")
         mp3.tag.artist = self.artist
         mp3.tag.album = self.album
         mp3.tag.album_artist = self.artist
@@ -140,19 +129,6 @@ class Song:
         mp3.tag.images.set(3, open(self.DownloadSongCover(), 'rb').read(), 'image/png')
         mp3.tag.save()
 
-    def Telegram(self):
-        if self.YTLink() != 'https://www.youtube.com/':
-            self.YTDownload()
-            self.SongMetaData()
-            caption = f'Track: {self.trackName}\nAlbum: {self.album}\nArtist: {self.artist}'
-            bot.sendAudio(self.chat_id, open(f'song//{self.trackName}.mp3', 'rb'), title=self.trackName,
-                          caption=caption)
-        # change the chat_id with ur channel chat id for sending music to the channel
-        #     bot.sendAudio(self.chat_id, open(f'song//{self.trackName}.mp3', 'rb'), title=self.trackName,
-        #                     caption=caption)
-        else:
-            bot.sendSticker(self.chat_id, 'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
-            bot.sendMessage(self.chat_id, f'404\n"{self.trackName}" Not Found')
 
 
 def album(link):
