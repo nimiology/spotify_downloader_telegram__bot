@@ -73,6 +73,7 @@ profiles = ['wikipaintings', 'spirit_of_arte', 'mariocruz181', 'beautiful.classi
 def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=WELCOME)
 
+
 def album(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=SINGLE_MESSAGE)
     sort[update.effective_chat.id] = 'album'
@@ -117,6 +118,7 @@ def download(update: Update, context: CallbackContext):
                                      sticker='CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
             context.bot.send_message(chat_id=update.effective_chat.id, text='send me a link or use the commands!')
 
+
 def run():
     updater = Updater(token=telegram_token, use_context=True)
     updater.start_polling()
@@ -133,5 +135,7 @@ def run():
     dispatcher.add_handler(artist_handler)
     dispatcher.add_handler(download1_handler)
     print('[TELEGRAM BOT] Listening...')
+
+
 if __name__ == '__main__':
     run()
