@@ -66,9 +66,6 @@ Name album - Name artist
 
 sort = {}
 telegram_token = 'token'
-profiles = ['wikipaintings', 'spirit_of_arte', 'mariocruz181', 'beautiful.classic.world', 'museo_virtuale_',
-            'darkgloomyart', 'classica.arte', 'classical._.art', 'statuegram', 'art']
-
 
 def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=WELCOME)
