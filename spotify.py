@@ -1,4 +1,5 @@
-from __future__ import unicode_literals
+import datetime
+
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
@@ -43,37 +44,26 @@ class Song:
         return features
 
     def ConvertTimeDuration(self):
-        seconds = (self.duration / 1000) % 60
-        minutes = (self.duration / (1000 * 60)) % 60
-        seconds = int(seconds)
-        minutes = int(minutes)
+        target_datetime_ms = self.duration
+        base_datetime = datetime.datetime(1900, 1, 1)
+        delta = datetime.timedelta(0, 0, 0, target_datetime_ms)
+        target_datetime1 = base_datetime + delta
+        target_datetime1 = target_datetime1.replace(microsecond=0)
+        target_datetime2 = target_datetime1 + datetime.timedelta(seconds=1)
+        target_datetime3 = target_datetime1 + datetime.timedelta(seconds=2)
+        target_datetime4 = target_datetime1 + datetime.timedelta(seconds=3)
 
-        if seconds >= 10:
-            time_duration1 = "{0}:{1}".format(minutes, seconds)
-            time_duration2 = "{0}:{1}".format(minutes, seconds + 1)
-            time_duration3 = "{0}:{1}".format(minutes, seconds - 1)
-            time_duration4 = "{0}:{1}".format(minutes, seconds + 2)
+        target_datetime5 = target_datetime1 - datetime.timedelta(seconds=1)
+        target_datetime6 = target_datetime1 - datetime.timedelta(seconds=2)
+        target_datetime7 = target_datetime1 - datetime.timedelta(seconds=3)
 
-            if seconds == 10:
-                time_duration3 = "{0}:0{1}".format(minutes, seconds - 1)
-            elif seconds == 58 or seconds == 59:
-                time_duration4 = "{0}:0{1}".format(minutes + 1, seconds - 58)
-                if seconds == 59:
-                    time_duration2 = "{0}:0{1}".format(minutes + 1, seconds - 59)
-
-        else:
-            time_duration1 = "{0}:0{1}".format(minutes, seconds)
-            time_duration2 = "{0}:0{1}".format(minutes, seconds + 1)
-            time_duration3 = "{0}:0{1}".format(minutes, seconds - 1)
-            time_duration4 = "{0}:0{1}".format(minutes, seconds + 2)
-            if seconds == 9 or seconds == 8:
-                time_duration4 = "{0}:{1}".format(minutes, seconds + 2)
-                if seconds == 9:
-                    time_duration2 = "{0}:{1}".format(minutes, seconds + 1)
-
-            elif seconds == 0:
-                time_duration3 = "{0}:{1}".format(minutes - 1, seconds + 59)
-        return time_duration1, time_duration2, time_duration3, time_duration4
+        return target_datetime1, \
+               target_datetime2, \
+               target_datetime3, \
+               target_datetime4, \
+               target_datetime5, \
+               target_datetime6, \
+               target_datetime7
 
     def DownloadSongCover(self):
         response = requests.get(self.song['album']['images'][0]['url'])
@@ -85,12 +75,18 @@ class Song:
 
     def YTLink(self):
         results = list(YoutubeSearch(str(self.trackName + " " + self.artist)).to_dict())
-        time_duration1, time_duration2, time_duration3, time_duration4 = self.ConvertTimeDuration()
+        time_duration1, time_duration2, time_duration3, time_duration4,\
+        time_duration5, time_duration6, time_duration7 = self.ConvertTimeDuration()
         YTSlug = ''
+
         for URLSSS in results:
             timeyt = URLSSS["duration"]
+            timeyt = datetime.datetime.strptime(timeyt, '%M:%S')
+
             if timeyt == time_duration1 or timeyt == time_duration2 \
-                    or timeyt == time_duration3 or timeyt == time_duration4:
+                    or timeyt == time_duration3 or timeyt == time_duration4 or \
+                    timeyt == time_duration5 or timeyt == time_duration6 or \
+                    timeyt == time_duration7:
                 YTSlug = URLSSS['url_suffix']
                 break
 
@@ -101,8 +97,8 @@ class Song:
         options = {
             # PERMANENT options
             'format': 'bestaudio/best',
-            'keepvideo': False,
-            'outtmpl': f'{self.trackName}.*',
+            'keepvideo': True,
+            'outtmpl': f'static_cdn/media_root/{self.trackName}.*',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -114,7 +110,7 @@ class Song:
             mp3.download([self.YTLink()])
 
     def SongMetaData(self):
-        mp3 = eyed3.load(f"{self.trackName}.mp3")
+        mp3 = eyed3.load(f"static_cdn/media_root/{self.trackName}.mp3")
         mp3.tag.artist = self.artist
         mp3.tag.album = self.album
         mp3.tag.album_artist = self.artist
@@ -128,7 +124,6 @@ class Song:
             pass
         mp3.tag.images.set(3, open(self.DownloadSongCover(), 'rb').read(), 'image/png')
         mp3.tag.save()
-
 
 
 def album(link):
