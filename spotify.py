@@ -109,7 +109,7 @@ class Song:
             mp3.download([self.YTLink()])
 
     def SongMetaData(self):
-        mp3 = eyed3.load(f"static_cdn/media_root/{self.trackName}.mp3")
+        mp3 = eyed3.load(f"{self.trackName}.mp3")
         mp3.tag.artist = self.artist
         mp3.tag.album = self.album
         mp3.tag.album_artist = self.artist
