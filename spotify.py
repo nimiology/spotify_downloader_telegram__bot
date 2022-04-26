@@ -1,5 +1,4 @@
 import datetime
-
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
@@ -98,7 +97,7 @@ class Song:
             # PERMANENT options
             'format': 'bestaudio/best',
             'keepvideo': True,
-            'outtmpl': f'static_cdn/media_root/{self.trackName}.*',
+            'outtmpl': f'{self.trackName}.*',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
