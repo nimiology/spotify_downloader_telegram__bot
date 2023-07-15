@@ -1,5 +1,6 @@
 from telegram import Update
-from telegram.ext import Updater, CallbackContext, CommandHandler, MessageHandler, Filters
+from telegram.ext import CallbackContext, CommandHandler, MessageHandler, filters, ApplicationBuilder, \
+    ContextTypes
 import spotify
 
 
@@ -67,26 +68,27 @@ Name album - Name artist
 sort = {}
 telegram_token = 'token'
 
-def start(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=WELCOME)
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=WELCOME)
 
 
-def album(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=SINGLE_MESSAGE)
+async def album(update: Update, context: CallbackContext):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=SINGLE_MESSAGE)
     sort[update.effective_chat.id] = 'album'
 
 
-def artist(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=ARTISTS_MESSAGE)
+async def artist(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=ARTISTS_MESSAGE)
     sort[update.effective_chat.id] = 'artist'
 
 
-def single(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=SINGLE_MESSAGE)
+async def single(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=SINGLE_MESSAGE)
     sort[update.effective_chat.id] = 'single'
 
 
-def download(update: Update, context: CallbackContext):
+async def download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     msg = update.message.text
     msglink = text_finder(msg)
@@ -117,21 +119,21 @@ def download(update: Update, context: CallbackContext):
 
 
 def run():
-    updater = Updater(token=telegram_token, use_context=True)
-    updater.start_polling()
-    dispatcher = updater.dispatcher
+    application = ApplicationBuilder().token(telegram_token).build()
     start_handler = CommandHandler('start', start)
     album_handler = CommandHandler('album', album)
     single_handler = CommandHandler('single', single)
     artist_handler = CommandHandler('artist', artist)
-    download1_handler = MessageHandler(Filters.text & (~Filters.command), download)
+    download1_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), download)
 
-    dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(album_handler)
-    dispatcher.add_handler(single_handler)
-    dispatcher.add_handler(artist_handler)
-    dispatcher.add_handler(download1_handler)
+    application.add_handler(start_handler)
+    application.add_handler(album_handler)
+    application.add_handler(single_handler)
+    application.add_handler(artist_handler)
+    application.add_handler(download1_handler)
     print('[TELEGRAM BOT] Listening...')
+
+    application.run_polling()
 
 
 if __name__ == '__main__':
