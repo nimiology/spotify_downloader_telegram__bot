@@ -26,7 +26,7 @@ class Song:
         self.releaseDate = int(self.song['album']['release_date'][:4])
         self.duration = int(self.song['duration_ms'])
 
-    def Features(self):
+    def features(self):
         if len(self.artists) > 1:
             features = "(Ft."
             for artistPlace in range(0, len(self.artists)):
@@ -42,57 +42,39 @@ class Song:
             features = ""
         return features
 
-    def ConvertTimeDuration(self):
+    def convert_time_duration(self):
         target_datetime_ms = self.duration
         base_datetime = datetime.datetime(1900, 1, 1)
         delta = datetime.timedelta(0, 0, 0, target_datetime_ms)
-        target_datetime1 = base_datetime + delta
-        target_datetime1 = target_datetime1.replace(microsecond=0)
-        target_datetime2 = target_datetime1 + datetime.timedelta(seconds=1)
-        target_datetime3 = target_datetime1 + datetime.timedelta(seconds=2)
-        target_datetime4 = target_datetime1 + datetime.timedelta(seconds=3)
 
-        target_datetime5 = target_datetime1 - datetime.timedelta(seconds=1)
-        target_datetime6 = target_datetime1 - datetime.timedelta(seconds=2)
-        target_datetime7 = target_datetime1 - datetime.timedelta(seconds=3)
+        return base_datetime + delta
 
-        return target_datetime1, \
-               target_datetime2, \
-               target_datetime3, \
-               target_datetime4, \
-               target_datetime5, \
-               target_datetime6, \
-               target_datetime7
-
-    def DownloadSongCover(self):
+    def download_song_cover(self):
         response = requests.get(self.song['album']['images'][0]['url'])
-        imageFileName = self.trackName + ".png"
-        image = open(imageFileName, "wb")
+        image_file_name = self.trackName + ".png"
+        image = open(image_file_name, "wb")
         image.write(response.content)
         image.close()
-        return imageFileName
+        return image_file_name
 
-    def YTLink(self):
+    def yt_link(self):
         results = list(YoutubeSearch(str(self.trackName + " " + self.artist)).to_dict())
-        time_duration1, time_duration2, time_duration3, time_duration4,\
-        time_duration5, time_duration6, time_duration7 = self.ConvertTimeDuration()
-        YTSlug = ''
+        time_duration = self.convert_time_duration()
+        yt_url = ''
 
-        for URLSSS in results:
-            timeyt = URLSSS["duration"]
-            timeyt = datetime.datetime.strptime(timeyt, '%M:%S')
+        for yt in results:
+            yt_time = yt["duration"]
+            yt_time = datetime.datetime.strptime(yt_time, '%M:%S')
+            difference = abs((yt_time - time_duration).total_seconds())
 
-            if timeyt == time_duration1 or timeyt == time_duration2 \
-                    or timeyt == time_duration3 or timeyt == time_duration4 or \
-                    timeyt == time_duration5 or timeyt == time_duration6 or \
-                    timeyt == time_duration7:
-                YTSlug = URLSSS['url_suffix']
+            if difference <= 3:
+                yt_url = yt['url_suffix']
                 break
 
-        YTLink = str("https://www.youtube.com/" + YTSlug)
-        return YTLink
+        yt_link = str("https://www.youtube.com/" + yt_url)
+        return yt_link
 
-    def YTDownload(self):
+    def yt_download(self):
         options = {
             # PERMANENT options
             'format': 'bestaudio/best',
@@ -106,22 +88,22 @@ class Song:
         }
 
         with youtube_dl.YoutubeDL(options) as mp3:
-            mp3.download([self.YTLink()])
+            mp3.download([self.yt_link()])
 
-    def SongMetaData(self):
+    def song_meta_data(self):
         mp3 = eyed3.load(f"{self.trackName}.mp3")
         mp3.tag.artist = self.artist
         mp3.tag.album = self.album
         mp3.tag.album_artist = self.artist
-        mp3.tag.title = self.trackName + self.Features()
+        mp3.tag.title = self.trackName + self.features()
         mp3.tag.track_num = self.trackNumber
         mp3.tag.year = self.trackNumber
         try:
-            songGenius = genius.search_song(self.trackName, self.artist)
-            mp3.tag.lyrics.set(songGenius.lyrics)
+            song_genius = genius.search_song(self.trackName, self.artist)
+            mp3.tag.lyrics.set(song_genius.lyrics)
         except:
             pass
-        mp3.tag.images.set(3, open(self.DownloadSongCover(), 'rb').read(), 'image/png')
+        mp3.tag.images.set(3, open(self.download_song_cover(), 'rb').read(), 'image/png')
         mp3.tag.save()
 
 
