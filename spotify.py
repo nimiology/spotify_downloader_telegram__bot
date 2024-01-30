@@ -3,14 +3,14 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
 from youtube_search import YoutubeSearch
-import youtube_dl
+import yt_dlp
 import eyed3.id3
 import eyed3
 import lyricsgenius
 
 spotify = spotipy.Spotify(
-    client_credentials_manager=SpotifyClientCredentials(client_id='a145db3dcd564b9592dacf10649e4ed5',
-                                                        client_secret='389614e1ec874f17b8c99511c7baa2f6'))
+    client_credentials_manager=SpotifyClientCredentials(client_id='338caaf7cdd9497a8eed340da6b38c56',
+                                                        client_secret='12b896b6d658471a94a3ee4fc6ae3ecd'))
 genius = lyricsgenius.Genius('biZZReO7F98mji5oz3cE0FiIG73Hh07qoXSIzYSGNN3GBsnY-eUrPAVSdJk_0_de')
 
 
@@ -79,7 +79,7 @@ class Song:
             # PERMANENT options
             'format': 'bestaudio/best',
             'keepvideo': True,
-            'outtmpl': f'{self.trackName}.*',
+            'outtmpl': f'{self.trackName}',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -87,7 +87,7 @@ class Song:
             }],
         }
 
-        with youtube_dl.YoutubeDL(options) as mp3:
+        with yt_dlp.YoutubeDL(options) as mp3:
             mp3.download([self.yt_link()])
 
     def song_meta_data(self):
@@ -122,21 +122,21 @@ def artist(link):
     return albums
 
 
-def searchalbum(track):
+def search_album(track):
     results = spotify.search(track)
     return results['tracks']['items'][0]['album']['external_urls']['spotify']
 
 
 def playlist(link):
-    results = spotify.playlist_tracks(link)
+    results = spotify.playlist_items(link)
     return results['items'][:50]
 
 
-def searchsingle(track):
+def search_single(track):
     results = spotify.search(track)
     return results['tracks']['items'][0]['href']
 
 
-def searchartist(searchstr):
-    results = spotify.search(searchstr)
+def search_artist(artist):
+    results = spotify.search(artist)
     return results['tracks']['items'][0]['artists'][0]["external_urls"]['spotify']
