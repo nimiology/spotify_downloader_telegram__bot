@@ -1,27 +1,6 @@
-from telegram import Update
-from telegram.ext import CallbackContext, CommandHandler, MessageHandler, filters, ApplicationBuilder
 import spotify
+from consts import WELCOME_MESSAGE, ALBUM_MESSAGE, ARTISTS_MESSAGE, SINGLE_MESSAGE, NOT_FOUND_STICKER
 
-WELCOME_MESSAGE = '''Hi,
-This is Spotify Downloader!
-You can use the following commands:
-/album - Download songs from an album
-/single - Download a single song
-/artist - Download songs from an artist'''
-
-ARTISTS_MESSAGE = '''Please send the name of the artist like this: Artist Name'''
-
-SINGLE_MESSAGE = '''Please send the name of the song like this:
-Song Name
-or for better search, use this format:
-Song Name - Artist Name'''
-
-ALBUM_MESSAGE = '''Please send the name of the album like this:
-Album Name
-or for better search, use this format:
-Album Name - Artist Name'''
-
-telegram_token = '6105378219:AAEB72g8swlMkz6CiYzdz4iErYIcX3lx4LQ'
 
 
 async def start(update: Update, context: CallbackContext):
@@ -78,7 +57,7 @@ async def handle_search_message(update: Update, context: CallbackContext, msg: s
 
 async def send_help_message(update: Update, context: CallbackContext):
     await context.bot.send_sticker(chat_id=update.effective_chat.id,
-                                   sticker='CAACAgQAAxkBAAIBFGBLNcpfFcTLxnn5lR20ZbE2EJbrAAJRAQACEqdqA2XZDc7OSUrIHgQ')
+                                   sticker=NOT_FOUND_STICKER)
     await context.bot.send_message(chat_id=update.effective_chat.id, text='Send me a link or use the commands!')
 
 
@@ -118,7 +97,7 @@ async def download_song(update: Update, context: CallbackContext, link: str):
                                      caption=caption, title=song.trackName)
     except:
         await context.bot.send_sticker(chat_id=update.effective_chat.id,
-                                       sticker='CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ')
+                                       sticker=NOT_FOUND_STICKER)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f'404\n"{song.trackName}" Not Found')
 
 
