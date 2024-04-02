@@ -1,1 +1,7 @@
 .env
+*.session
+*.session-journal
+ffmpeg.exe
+
+covers
+songs

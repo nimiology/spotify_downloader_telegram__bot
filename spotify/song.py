@@ -1,30 +1,33 @@
 import datetime
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+import os
+
 import requests
 from youtube_search import YoutubeSearch
 import yt_dlp
 import eyed3.id3
 import eyed3
-import lyricsgenius
 
-spotify = spotipy.Spotify(
-    client_credentials_manager=SpotifyClientCredentials(client_id='338caaf7cdd9497a8eed340da6b38c56',
-                                                        client_secret='12b896b6d658471a94a3ee4fc6ae3ecd'))
-genius = lyricsgenius.Genius('biZZReO7F98mji5oz3cE0FiIG73Hh07qoXSIzYSGNN3GBsnY-eUrPAVSdJk_0_de')
+from spotify import SPOTIFY, GENIUS
+
+if not os.path.exists('covers'):
+    os.makedirs('covers')
 
 
 class Song:
     def __init__(self, link):
-        self.link = link
-        self.song = spotify.track(link)
-        self.trackName = self.song['name']
-        self.artist = self.song['artists'][0]['name']
-        self.artists = self.song['artists']
-        self.trackNumber = self.song['track_number']
-        self.album = self.song['album']['name']
-        self.releaseDate = int(self.song['album']['release_date'][:4])
-        self.duration = int(self.song['duration_ms'])
+        self.id = link
+        self.spotify = SPOTIFY.track(link)
+        self.track_name = self.spotify['name']
+        self.artist = self.spotify['artists'][0]['name']
+        self.artists = self.spotify['artists']
+        self.track_number = self.spotify['track_number']
+        self.album = self.spotify['album']['name']
+        self.release_date = int(self.spotify['album']['release_date'][:4])
+        self.duration = int(self.spotify['duration_ms'])
+        self.album_cover = self.spotify['album']['images'][0]['url']
+        self.path = f'songs'
+        self.file = f'{self.path}/{self.id}.mp3'
+        print(f'[SPOTIFY] Song: {self.track_name}')
 
     def features(self):
         if len(self.artists) > 1:
@@ -50,15 +53,15 @@ class Song:
         return base_datetime + delta
 
     def download_song_cover(self):
-        response = requests.get(self.song['album']['images'][0]['url'])
-        image_file_name = self.trackName + ".png"
+        response = requests.get(self.album_cover)
+        image_file_name = f'covers/{self.id}.png'
         image = open(image_file_name, "wb")
         image.write(response.content)
         image.close()
         return image_file_name
 
     def yt_link(self):
-        results = list(YoutubeSearch(str(self.trackName + " " + self.artist)).to_dict())
+        results = list(YoutubeSearch(str(self.track_name + " " + self.artist)).to_dict())
         time_duration = self.convert_time_duration()
         yt_url = ''
 
@@ -79,7 +82,7 @@ class Song:
             # PERMANENT options
             'format': 'bestaudio/best',
             'keepvideo': True,
-            'outtmpl': f'{self.trackName}',
+            'outtmpl': f'{self.path}/{self.id}',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -90,53 +93,31 @@ class Song:
         with yt_dlp.YoutubeDL(options) as mp3:
             mp3.download([self.yt_link()])
 
+    def lyrics(self):
+        try:
+            return GENIUS.search_song(self.track_name, self.artist).lyrics
+        except:
+            pass
+
     def song_meta_data(self):
-        mp3 = eyed3.load(f"{self.trackName}.mp3")
+        mp3 = eyed3.load(self.file)
         mp3.tag.artist = self.artist
         mp3.tag.album = self.album
         mp3.tag.album_artist = self.artist
-        mp3.tag.title = self.trackName + self.features()
-        mp3.tag.track_num = self.trackNumber
-        mp3.tag.year = self.trackNumber
-        try:
-            song_genius = genius.search_song(self.trackName, self.artist)
-            mp3.tag.lyrics.set(song_genius.lyrics)
-        except:
-            pass
+        mp3.tag.title = self.track_name + self.features()
+        mp3.tag.track_num = self.track_number
+        mp3.tag.year = self.track_number
+        mp3.tag.lyrics.set(self.lyrics())
         mp3.tag.images.set(3, open(self.download_song_cover(), 'rb').read(), 'image/png')
         mp3.tag.save()
 
-
-def album(link):
-    results = spotify.album_tracks(link)
-    albums = results['items']
-    while results['next']:
-        results = spotify.next(results)
-        albums.extend(results['items'])
-    return albums
-
-
-def artist(link):
-    results = spotify.artist_top_tracks(link)
-    albums = results['tracks']
-    return albums
-
-
-def search_album(track):
-    results = spotify.search(track)
-    return results['tracks']['items'][0]['album']['external_urls']['spotify']
-
-
-def playlist(link):
-    results = spotify.playlist_items(link)
-    return results['items'][:50]
-
-
-def search_single(track):
-    results = spotify.search(track)
-    return results['tracks']['items'][0]['href']
-
-
-def search_artist(artist):
-    results = spotify.search(artist)
-    return results['tracks']['items'][0]['artists'][0]["external_urls"]['spotify']
+    def download(self):
+        if os.path.exists(self.file):
+            print(f'[SPOTIFY] Song Already Downloaded: {self.track_name} by {self.artist}')
+            return self.file
+        print(f'[YOUTUBE] Downloading {self.track_name} by {self.artist}...')
+        self.yt_download()
+        print(f'[SPOTIFY] Song Metadata: {self.track_name} by {self.artist}')
+        self.song_meta_data()
+        print(f'[SPOTIFY] Song Downloaded: {self.track_name} by {self.artist}')
+        return self.file
