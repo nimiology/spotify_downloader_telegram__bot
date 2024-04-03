@@ -1,4 +1,4 @@
-from telethon import events
+from telethon import events, types
 from telethon.tl.types import PeerUser
 
 from consts import NOT_IN_DB, PROCESSING, DOWNLOADING, UPLOADING, ALREADY_IN_DB, NO_LYRICS_FOUND
@@ -40,9 +40,7 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
         new_message = await CLIENT.send_message(
             DB_CHANNEL_ID,
             BOT_ID,
-            file=file_path,
-            supports_streaming=True,  # Indicate that the audio supports streaming
-
+            CLIENT.upload_file(file_path, file_name=f'{song.track_name} - {song.artist}.mp3'),
         )
         song.save_db(event.sender_id, new_message.id)
         message_id = new_message.id
