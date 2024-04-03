@@ -37,12 +37,14 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
         processing = await event.respond(DOWNLOADING)
         file_path = song.download()
         await processing.edit(UPLOADING)
-        file = await CLIENT.upload_file(file_path, file_name=f'{song.track_name} - {song.artist}')
-        new_message = await CLIENT.send_message(
-            DB_CHANNEL_ID,
-            BOT_ID,
-            file=file,
-        )
+        # Upload a document, showing its progress (most clients ignore this)
+        async with CLIENT.action(DB_CHANNEL_ID, 'song') as action:
+            new_message = await CLIENT.send_file(DB_CHANNEL_ID, file_path, progress_callback=action.progress)
+        #     new_message = await CLIENT.send_message(
+        #     DB_CHANNEL_ID,
+        #     BOT_ID,
+        #     file=file_path,
+        # )
         song.save_db(event.sender_id, new_message.id)
         message_id = new_message.id
 
