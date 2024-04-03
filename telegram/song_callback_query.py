@@ -1,5 +1,7 @@
 from decouple import config
 from telethon import events
+from telethon.tl.functions.messages import GetMessagesRequest
+from telethon.tl.types import PeerUser
 
 from spotify.song import Song
 from telegram import CLIENT
@@ -21,15 +23,20 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
     print(f'[TELEGRAM] download song callback query: {song_id}')
     processing = await event.respond('processing...')
     song = Song(song_id)
-    await processing.delete()
-    downloading = await event.respond('downloading...')
+    # update processing message
+    await processing.edit('downloading...')
     file_path = song.download()
-    await downloading.delete()
-    uploading = await event.respond('uploading...')
-    print(file_path)
-    m = await event.respond('song downlaoded', file=file_path)
-    await uploading.delete()
-    print(m)
+    await processing.edit('uploading...')
+    new_message = await CLIENT.send_message(
+        int(config('DB_CHANNEL_ID')),
+        f'forward {song_id}',
+        file=file_path
+    )
+    await CLIENT.forward_messages(
+        entity=event.chat_id,  # Destination chat ID
+        messages=new_message.id,  # Message ID to forward
+        from_peer=PeerUser(int(config('DB_CHANNEL_ID')))  # ID of the chat/channel where the message is from
+    )
 
 
 @CLIENT.on(events.CallbackQuery(pattern='track_lyrics'))

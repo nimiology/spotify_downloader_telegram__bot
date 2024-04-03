@@ -27,19 +27,21 @@ async def single(event):
 
 @CLIENT.on(events.NewMessage)
 async def download(event: events.NewMessage.Event):
-    msg = event.raw_text
-    print(f'[TELEGRAM] New message: {msg}')
-    # msg_link = text_finder(msg)
-    # if msg_link.startswith('https://open.spotify.com/album'):
-    #     await downloader(event, msg, 'AL')
-    # elif msg_link.startswith('https://open.spotify.com/track'):
-    #     await download_song(event, msg_link)
-    # elif msg.startswith('https://open.spotify.com/playlist'):
-    #     await downloader(event, msg, 'PL')
-    # elif msg_link.startswith('https://open.spotify.com/artist'):
-    #     await downloader(event, msg, 'AR')
-    # else:
-    await handle_search_message(event)
+    # message is private
+    if event.is_private:
+        msg = event.raw_text
+        print(f'[TELEGRAM] New message: {msg}')
+        # msg_link = text_finder(msg)
+        # if msg_link.startswith('https://open.spotify.com/album'):
+        #     await downloader(event, msg, 'AL')
+        # elif msg_link.startswith('https://open.spotify.com/track'):
+        #     await download_song(event, msg_link)
+        # elif msg.startswith('https://open.spotify.com/playlist'):
+        #     await downloader(event, msg, 'PL')
+        # elif msg_link.startswith('https://open.spotify.com/artist'):
+        #     await downloader(event, msg, 'AR')
+        # else:
+        await handle_search_message(event)
 
 # def text_finder(txt):
 #     index = txt.find("https://open.spotify.com")
