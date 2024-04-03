@@ -28,3 +28,5 @@ UPLOADING = 'uploading...'
 PROCESSING = 'processing...'
 
 ALREADY_IN_DB = '💾already in database'
+
+NO_LYRICS_FOUND = '❌No lyrics found'

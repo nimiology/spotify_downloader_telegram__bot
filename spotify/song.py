@@ -99,7 +99,7 @@ class Song:
         try:
             return GENIUS.search_song(self.track_name, self.artist).lyrics
         except:
-            pass
+            return None
 
     def song_meta_data(self):
         mp3 = eyed3.load(self.file)
@@ -109,7 +109,11 @@ class Song:
         mp3.tag.title = self.track_name + self.features()
         mp3.tag.track_num = self.track_number
         mp3.tag.year = self.track_number
-        mp3.tag.lyrics.set(self.lyrics())
+
+        lyrics = self.lyrics()
+        if lyrics is not None:
+            mp3.tag.lyrics.set(lyrics)
+
         mp3.tag.images.set(3, open(self.download_song_cover(), 'rb').read(), 'image/png')
         mp3.tag.save()
 

@@ -1,7 +1,7 @@
 from telethon import events
 from telethon.tl.types import PeerUser
 
-from consts import NOT_IN_DB, PROCESSING, DOWNLOADING, UPLOADING, ALREADY_IN_DB
+from consts import NOT_IN_DB, PROCESSING, DOWNLOADING, UPLOADING, ALREADY_IN_DB, NO_LYRICS_FOUND
 from models import session, SongRequest, User
 from spotify.song import Song
 from telegram import CLIENT, DB_CHANNEL_ID, BOT_ID
@@ -45,7 +45,6 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
         song.save_db(event.sender_id, new_message.id)
         message_id = new_message.id
 
-    await processing.delete()
     # forward the message
     await CLIENT.forward_messages(
         entity=event.chat_id,  # Destination chat ID
@@ -61,7 +60,11 @@ async def track_lyrics_callback_query(event: events.CallbackQuery.Event):
     print(f'[TELEGRAM] track lyrics callback query: {data}')
     print(song_id)
     print(f'[TELEGRAM] track lyrics callback query: {song_id}')
-    await event.respond(f'{Song(song_id).lyrics()}\n\n{BOT_ID}')
+    lyrics = Song(song_id).lyrics()
+    if lyrics is None:
+        await event.respond(NO_LYRICS_FOUND)
+    else:
+        await event.respond(f'{lyrics}\n\n{BOT_ID}')
 
 
 @CLIENT.on(events.CallbackQuery(pattern='download_image'))
