@@ -41,7 +41,7 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
             DB_CHANNEL_ID,
             BOT_ID,
             file=file_path,
-            media={'type': 'audio', 'file': file_path}
+            supports_streaming=True,  # Indicate that the audio supports streaming
 
         )
         song.save_db(event.sender_id, new_message.id)
