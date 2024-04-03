@@ -24,9 +24,14 @@ class SongRequest(Base):
     user = relationship('User', backref='songs')
 
 
-# Create the tables in the database
-Base.metadata.create_all(bind=engine)
+# print user instances
+
+
+
+# Create the tables in the database if they don't exist
+Base.metadata.create_all(engine)
 
 # Create a session to interact with the database
 Session = sessionmaker(bind=engine)
 session = Session()
+print(session.query(SongRequest).all())

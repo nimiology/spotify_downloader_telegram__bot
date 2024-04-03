@@ -141,3 +141,4 @@ class Song:
             song_id_in_group=song_id_in_group,
             group_id=DB_CHANNEL_ID
         ))
+        session.commit()
