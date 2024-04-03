@@ -38,7 +38,7 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
         file_path = song.download()
         await processing.edit(UPLOADING)
         # Upload a document, showing its progress (most clients ignore this)
-        async with CLIENT.action(DB_CHANNEL_ID, 'song') as action:
+        async with CLIENT.action(DB_CHANNEL_ID, 'audio') as action:
             new_message = await CLIENT.send_file(DB_CHANNEL_ID, file_path, progress_callback=action.progress)
         #     new_message = await CLIENT.send_message(
         #     DB_CHANNEL_ID,
