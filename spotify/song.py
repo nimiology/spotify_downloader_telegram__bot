@@ -7,7 +7,9 @@ import yt_dlp
 import eyed3.id3
 import eyed3
 
+from models import session, User, SongRequest
 from spotify import SPOTIFY, GENIUS
+from telegram import DB_CHANNEL_ID
 
 if not os.path.exists('covers'):
     os.makedirs('covers')
@@ -121,3 +123,16 @@ class Song:
         self.song_meta_data()
         print(f'[SPOTIFY] Song Downloaded: {self.track_name} by {self.artist}')
         return self.file
+
+    def save_db(self, user_id: int, song_id_in_group: int):
+        user = session.query(User).filter_by(telegram_id=user_id).first()
+        if not user:
+            user = User(telegram_id=user_id)
+            session.add(user)
+            session.commit()
+        session.add(SongRequest(
+            spotify_id=self.id,
+            user_id=user.id,
+            song_id_in_group=song_id_in_group,
+            group_id=DB_CHANNEL_ID
+        ))

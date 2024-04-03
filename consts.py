@@ -18,3 +18,13 @@ or for better search, use this format:
 Album Name - Artist Name'''
 
 NOT_FOUND_STICKER = 'CAACAgQAAxkBAAIFSWBF_m3GHUtZJxQzobvD_iWxYVClAAJuAgACh4hSOhXuVi2-7-xQHgQ'
+
+NOT_IN_DB = '❌💾 Song is not in database, this might take longer'
+
+DOWNLOADING = 'downloading...'
+
+UPLOADING = 'uploading...'
+
+PROCESSING = 'processing...'
+
+ALREADY_IN_DB = '💾already in database'

@@ -14,12 +14,13 @@ class User(Base):
 
 
 # Define the Song table
-class Song(Base):
+class SongRequest(Base):
     __tablename__ = 'songs'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    song_spid = Column(String, nullable=False)
+    spotify_id = Column(String, nullable=False)
     song_id_in_group = Column(Integer)
+    group_id = Column(Integer)
     user = relationship('User', backref='songs')
 
 

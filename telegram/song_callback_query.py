@@ -1,10 +1,10 @@
-from decouple import config
 from telethon import events
-from telethon.tl.functions.messages import GetMessagesRequest
 from telethon.tl.types import PeerUser
 
+from consts import NOT_IN_DB, PROCESSING, DOWNLOADING, UPLOADING, ALREADY_IN_DB
+from models import session, SongRequest, User
 from spotify.song import Song
-from telegram import CLIENT
+from telegram import CLIENT, DB_CHANNEL_ID, BOT_ID
 from telegram.templates import song_template
 
 
@@ -21,21 +21,36 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
     data = event.data.decode('utf-8')
     song_id = data[14:]
     print(f'[TELEGRAM] download song callback query: {song_id}')
-    processing = await event.respond('processing...')
-    song = Song(song_id)
-    # update processing message
-    await processing.edit('downloading...')
-    file_path = song.download()
-    await processing.edit('uploading...')
-    new_message = await CLIENT.send_message(
-        int(config('DB_CHANNEL_ID')),
-        f'forward {song_id}',
-        file=file_path
-    )
+    processing = await event.respond(PROCESSING)
+
+    # first check if the song is already in the database
+    song_db = session.query(SongRequest).filter_by(spotify_id=song_id).first()
+    if song_db:
+        await processing.edit(ALREADY_IN_DB)
+        message_id = song_db.song_id_in_group
+    else:
+        # if not, create a new message in the database
+        await processing.delete()
+        song = Song(song_id)
+        await event.respond(NOT_IN_DB)
+        # update processing message
+        processing = await event.respond(DOWNLOADING)
+        file_path = song.download()
+        await processing.edit(UPLOADING)
+        new_message = await CLIENT.send_message(
+            DB_CHANNEL_ID,
+            BOT_ID,
+            file=file_path
+        )
+        song.save_db(event.sender_id, new_message.id)
+        message_id = new_message.id
+
+    await processing.delete()
+    # forward the message
     await CLIENT.forward_messages(
         entity=event.chat_id,  # Destination chat ID
-        messages=new_message.id,  # Message ID to forward
-        from_peer=PeerUser(int(config('DB_CHANNEL_ID')))  # ID of the chat/channel where the message is from
+        messages=message_id,  # Message ID to forward
+        from_peer=PeerUser(int(DB_CHANNEL_ID))  # ID of the chat/channel where the message is from
     )
 
 
@@ -46,7 +61,7 @@ async def track_lyrics_callback_query(event: events.CallbackQuery.Event):
     print(f'[TELEGRAM] track lyrics callback query: {data}')
     print(song_id)
     print(f'[TELEGRAM] track lyrics callback query: {song_id}')
-    await event.respond(Song(song_id).lyrics())
+    await event.respond(f'{Song(song_id).lyrics()}\n\n{BOT_ID}')
 
 
 @CLIENT.on(events.CallbackQuery(pattern='download_image'))
@@ -55,4 +70,4 @@ async def download_image_callback_query(event: events.CallbackQuery.Event):
     song_id = data[15:]
     print(song_id)
     print(f'[TELEGRAM] download image callback query: {song_id}')
-    await event.respond(config('BOT_ID'), file=Song(song_id).album_cover)
+    await event.respond(BOT_ID, file=Song(song_id).album_cover)
