@@ -37,7 +37,7 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
         processing = await event.respond(DOWNLOADING)
         file_path = song.download()
         await processing.edit(UPLOADING)
-        file = await CLIENT.upload_file(file_path, file_name=f'{song.track_name} - {song.artist}.mp3')
+        file = await CLIENT.upload_file(file_path, file_name=f'{song.track_name} - {song.artist}')
         new_message = await CLIENT.send_message(
             DB_CHANNEL_ID,
             BOT_ID,
