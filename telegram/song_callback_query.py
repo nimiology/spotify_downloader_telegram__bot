@@ -40,7 +40,7 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
         new_message = await CLIENT.send_message(
             DB_CHANNEL_ID,
             BOT_ID,
-            CLIENT.upload_file(file_path, file_name=f'{song.track_name} - {song.artist}.mp3'),
+            file=CLIENT.upload_file(file_path, file_name=f'{song.track_name} - {song.artist}.mp3'),
         )
         song.save_db(event.sender_id, new_message.id)
         message_id = new_message.id
