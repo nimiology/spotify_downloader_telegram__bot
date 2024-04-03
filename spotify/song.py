@@ -26,6 +26,7 @@ class Song:
         self.album = self.spotify['album']['name']
         self.release_date = int(self.spotify['album']['release_date'][:4])
         self.duration = int(self.spotify['duration_ms'])
+        self.duration_to_seconds = int(self.duration / 1000)
         self.album_cover = self.spotify['album']['images'][0]['url']
         self.path = f'songs'
         self.file = f'{self.path}/{self.id}.mp3'

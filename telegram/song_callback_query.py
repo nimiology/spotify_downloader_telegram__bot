@@ -42,8 +42,12 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
             caption=BOT_ID,
             file=file_path,
             supports_streaming=True,
+            attributes=(
+                types.DocumentAttributeAudio(title=song.track_name, duration=song.duration,
+                                             performer=song.artist),),
 
         )
+        await processing.delete()
         song.save_db(event.sender_id, new_message.id)
         message_id = new_message.id
 
