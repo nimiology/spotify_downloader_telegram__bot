@@ -43,7 +43,7 @@ async def send_song_callback_query(event: events.CallbackQuery.Event):
             file=file_path,
             supports_streaming=True,
             attributes=(
-                types.DocumentAttributeAudio(title=song.track_name, duration=song.duration,
+                types.DocumentAttributeAudio(title=song.track_name, duration=song.duration_to_seconds,
                                              performer=song.artist),),
 
         )
