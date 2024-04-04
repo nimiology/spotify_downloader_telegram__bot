@@ -6,6 +6,7 @@ from youtube_search import YoutubeSearch
 import yt_dlp
 import eyed3.id3
 import eyed3
+from telethon import Button
 
 from models import session, User, SongRequest
 from spotify import SPOTIFY, GENIUS
@@ -18,18 +19,23 @@ if not os.path.exists('covers'):
 class Song:
     def __init__(self, link):
         self.id = link
-        self.spotify = SPOTIFY.track(link)
+        self.spotify = SPOTIFY.track(self.id)
+        self.spotify_link = self.spotify['external_urls']['spotify']
         self.track_name = self.spotify['name']
-        self.artist = self.spotify['artists'][0]['name']
+        self.artists_list = self.spotify['artists']
+        self.artist_name = self.artists_list[0]['name']
         self.artists = self.spotify['artists']
         self.track_number = self.spotify['track_number']
-        self.album = self.spotify['album']['name']
+        self.album = self.spotify['album']
+        self.album_id = self.album['id']
+        self.album_name = self.album['name']
         self.release_date = int(self.spotify['album']['release_date'][:4])
         self.duration = int(self.spotify['duration_ms'])
         self.duration_to_seconds = int(self.duration / 1000)
         self.album_cover = self.spotify['album']['images'][0]['url']
         self.path = f'songs'
         self.file = f'{self.path}/{self.id}.mp3'
+        self.uri = self.spotify['uri']
         print(f'[SPOTIFY] Song: {self.track_name}')
 
     def features(self):
@@ -64,7 +70,7 @@ class Song:
         return image_file_name
 
     def yt_link(self):
-        results = list(YoutubeSearch(str(self.track_name + " " + self.artist)).to_dict())
+        results = list(YoutubeSearch(str(self.track_name + " " + self.artist_name)).to_dict())
         time_duration = self.convert_time_duration()
         yt_url = ''
 
@@ -98,15 +104,15 @@ class Song:
 
     def lyrics(self):
         try:
-            return GENIUS.search_song(self.track_name, self.artist).lyrics
+            return GENIUS.search_song(self.track_name, self.artist_name).lyrics
         except:
             return None
 
     def song_meta_data(self):
         mp3 = eyed3.load(self.file)
-        mp3.tag.artist = self.artist
-        mp3.tag.album = self.album
-        mp3.tag.album_artist = self.artist
+        mp3.tag.artist_name = self.artist_name
+        mp3.tag.album_name = self.album_name
+        mp3.tag.album_artist = self.artist_name
         mp3.tag.title = self.track_name + self.features()
         mp3.tag.track_num = self.track_number
         mp3.tag.year = self.track_number
@@ -120,14 +126,41 @@ class Song:
 
     def download(self):
         if os.path.exists(self.file):
-            print(f'[SPOTIFY] Song Already Downloaded: {self.track_name} by {self.artist}')
+            print(f'[SPOTIFY] Song Already Downloaded: {self.track_name} by {self.artist_name}')
             return self.file
-        print(f'[YOUTUBE] Downloading {self.track_name} by {self.artist}...')
+        print(f'[YOUTUBE] Downloading {self.track_name} by {self.artist_name}...')
         self.yt_download()
-        print(f'[SPOTIFY] Song Metadata: {self.track_name} by {self.artist}')
+        print(f'[SPOTIFY] Song Metadata: {self.track_name} by {self.artist_name}')
         self.song_meta_data()
-        print(f'[SPOTIFY] Song Downloaded: {self.track_name} by {self.artist}')
+        print(f'[SPOTIFY] Song Downloaded: {self.track_name} by {self.artist_name}')
         return self.file
+
+    async def song_telethon_template(self):
+        message = f'''
+🎧 Title :`{self.track_name}`
+🎤 Artist : `{self.artist_name}{self.features()}`
+💿 Album : `{self.album_name}`
+📅 Release Date : `{self.release_date}`
+
+[IMAGE]({self.album_cover})
+{self.uri}   
+        '''
+
+        buttons = [[Button.inline(f'📩Download Track!', data=f"download_song:{self.id}")],
+                   [Button.inline(f'🖼️Download Track Image!', data=f"download_song_image:{self.id}")],
+                   [Button.inline(f'👀View Track Album!', data=f"album:{self.album_id}")],
+                   [Button.inline(f'🧑‍🎨View Track Artists!', data=f"track_artist:{self.id}")],
+                   [Button.inline(f'📃View Track Lyrics!', data=f"track_lyrics:{self.id}")],
+                   [Button.url(f'🎵Listen on Spotify', self.spotify_link)],
+                   ]
+
+        return message, self.album_cover, buttons
+
+    async def artist_buttons_telethon_templates(self):
+        message = f"{self.track_name} track Artist's"
+        buttons = [[Button.inline(artist['name'], data=f"artist:{artist['id']}")]
+                   for artist in self.artists_list]
+        return message, buttons
 
     def save_db(self, user_id: int, song_id_in_group: int):
         user = session.query(User).filter_by(telegram_id=user_id).first()

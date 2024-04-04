@@ -14,7 +14,7 @@ async def handle_search_message(event: events.NewMessage.Event):
     buttons = []
     for song_item in song_items:
         # Create a new row for each button
-        button = [Button.inline(f'{song_item.track_name} - {song_item.artist}', data=f"song:{song_item.id}")]
+        button = [Button.inline(f'{song_item.track_name} - {song_item.artist_name}', data=f"song:{song_item.id}")]
         buttons.append(button)
 
     # Create the reply message with buttons
