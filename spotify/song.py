@@ -10,7 +10,7 @@ import eyed3.id3
 import eyed3
 from telethon import Button, events
 
-from consts import DOWNLOADING, UPLOADING, PROCESSING, ALREADY_IN_DB, NOT_IN_DB
+from consts import DOWNLOADING, UPLOADING, PROCESSING, ALREADY_IN_DB, NOT_IN_DB, SONG_NOT_FOUND
 from models import session, User, SongRequest
 from spotify import SPOTIFY, GENIUS
 from telegram import DB_CHANNEL_ID, CLIENT, BOT_ID
@@ -75,7 +75,7 @@ class Song:
     def yt_link(self):
         results = list(YoutubeSearch(str(self.track_name + " " + self.artist_name)).to_dict())
         time_duration = self.convert_time_duration()
-        yt_url = ''
+        yt_url = None
 
         for yt in results:
             yt_time = yt["duration"]
@@ -85,11 +85,13 @@ class Song:
             if difference <= 3:
                 yt_url = yt['url_suffix']
                 break
+        if yt_url is None:
+            return None
 
         yt_link = str("https://www.youtube.com/" + yt_url)
         return yt_link
 
-    def yt_download(self):
+    def yt_download(self, yt_link=None):
         options = {
             # PERMANENT options
             'format': 'bestaudio/best',
@@ -101,9 +103,10 @@ class Song:
                 'preferredquality': '320'
             }],
         }
-
+        if yt_link is None:
+            yt_link = self.yt_link()
         with yt_dlp.YoutubeDL(options) as mp3:
-            mp3.download([self.yt_link()])
+            mp3.download([yt_link])
 
     def lyrics(self):
         try:
@@ -127,12 +130,12 @@ class Song:
         mp3.tag.images.set(3, open(self.download_song_cover(), 'rb').read(), 'image/png')
         mp3.tag.save()
 
-    def download(self):
+    def download(self, yt_link=None):
         if os.path.exists(self.file):
             print(f'[SPOTIFY] Song Already Downloaded: {self.track_name} by {self.artist_name}')
             return self.file
         print(f'[YOUTUBE] Downloading {self.track_name} by {self.artist_name}...')
-        self.yt_download()
+        self.yt_download(yt_link=yt_link)
         print(f'[SPOTIFY] Song Metadata: {self.track_name} by {self.artist_name}')
         self.song_meta_data()
         print(f'[SPOTIFY] Song Downloaded: {self.track_name} by {self.artist_name}')
@@ -195,12 +198,18 @@ class Song:
             message_id = song_db.song_id_in_group
         else:
             # if not, create a new message in the database
-            await processing.delete()
             song = Song(song_id)
             db_message = await event.respond(NOT_IN_DB)
             # update processing message
-            processing = await event.respond(DOWNLOADING)
-            file_path = song.download()
+            await processing.edit(DOWNLOADING)
+            # see if the song is on yt
+            yt_link = song.yt_link()
+            if yt_link is None:
+                print(f'[YOUTUBE] song not found: {song.uri}')
+                await processing.delete()
+                await event.respond(SONG_NOT_FOUND)
+                return
+            file_path = song.download(yt_link=yt_link)
             await processing.edit(UPLOADING)
 
             upload_file = await CLIENT.upload_file(file_path,
@@ -229,4 +238,3 @@ class Song:
             from_peer=PeerUser(int(DB_CHANNEL_ID))  # ID of the chat/channel where the message is from
         )
         await db_message.delete()
-
