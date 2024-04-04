@@ -5,8 +5,8 @@ from spotify import SPOTIFY
 
 class Album:
     def __init__(self, link):
-        self.id = link
-        self.spotify = SPOTIFY.album(self.id)
+        self.spotify = SPOTIFY.album(link)
+        self.id = self.spotify['id']
         self.album_name = self.spotify['name']
         self.artists_list = self.spotify['artists']
         self.artist_name = self.artists_list[0]['name']

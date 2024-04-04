@@ -5,8 +5,8 @@ from spotify import SPOTIFY
 
 class Artist:
     def __init__(self, artist_id):
-        self.id = artist_id
-        self.spotify = SPOTIFY.artist(self.id)
+        self.spotify = SPOTIFY.artist(artist_id)
+        self.id = self.spotify['id']
         self.artist_name = self.spotify['name']
         self.followers_count = self.spotify['followers']['total']
         self.genres = self.spotify['genres']

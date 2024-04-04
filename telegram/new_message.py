@@ -1,28 +1,32 @@
 from telethon import events, client
 
-from consts import SINGLE_MESSAGE, ARTISTS_MESSAGE, ALBUM_MESSAGE, WELCOME_MESSAGE
+from spotify.album import Album
+from spotify.artist import Artist
+from spotify.song import Song
 from telegram import CLIENT
 from telegram.utils import handle_search_message
 
 
-@CLIENT.on(events.NewMessage(pattern='/start'))
-async def start(event):
-    await event.respond(WELCOME_MESSAGE)
+async def handle_track(event: events.NewMessage.Event, msg_link):
+    print(f'[TELEGRAM] song callback query: {msg_link}')
+    message = await Song(msg_link).song_telethon_template()
+    await event.respond(message[0], thumb=message[1], buttons=message[2])
 
 
-@CLIENT.on(events.NewMessage(pattern='/album'))
-async def album(event):
-    await event.respond(ALBUM_MESSAGE)
+async def handle_album(event: events.NewMessage.Event, msg_link):
+    print(f'[TELEGRAM] album callback query: {msg_link}')
+    message = await Album(msg_link).album_telegram_template()
+    await event.respond(message[0], thumb=message[1], buttons=message[2])
 
 
-@CLIENT.on(events.NewMessage(pattern='/artist'))
-async def artist(event):
-    await event.respond(ARTISTS_MESSAGE)
+async def handle_artist(event: events.NewMessage.Event, msg_link):
+    print(f'[TELEGRAM] artist callback query: {msg_link}')
+    message = await Artist(msg_link).artist_telethon_template()
+    await event.respond(message[0], buttons=message[1])
 
 
-@CLIENT.on(events.NewMessage(pattern='/single'))
-async def single(event):
-    await event.respond(SINGLE_MESSAGE)
+async def handle_playlist(event: events.NewMessage.Event, msg_link):
+    print(f'[TELEGRAM] playlist callback query: {msg_link}')
 
 
 @CLIENT.on(events.NewMessage)
@@ -31,56 +35,25 @@ async def download(event: events.NewMessage.Event):
     if event.is_private:
         msg = event.raw_text
         print(f'[TELEGRAM] New message: {msg}')
-        # msg_link = text_finder(msg)
-        # if msg_link.startswith('https://open.spotify.com/album'):
-        #     await downloader(event, msg, 'AL')
-        # elif msg_link.startswith('https://open.spotify.com/track'):
-        #     await download_song(event, msg_link)
-        # elif msg.startswith('https://open.spotify.com/playlist'):
-        #     await downloader(event, msg, 'PL')
-        # elif msg_link.startswith('https://open.spotify.com/artist'):
-        #     await downloader(event, msg, 'AR')
-        # else:
-        await handle_search_message(event)
+        msg_link = text_finder(msg)
+        if msg_link.startswith('https://open.spotify.com/'):
+            # Process different types of Spotify links
+            if 'album' in msg_link:
+                await handle_album(event, msg_link)
+            elif 'track' in msg_link:
+                await handle_track(event, msg_link)
+            elif 'playlist' in msg_link:
+                await handle_playlist(event, msg_link)
+            elif 'artist' in msg_link:
+                await handle_artist(event, msg_link)
+            else:
+                await handle_search_message(event)
+        else:
+            await handle_search_message(event)
 
-# def text_finder(txt):
-#     index = txt.find("https://open.spotify.com")
-#     if index != -1:
-#         return txt[index:]
-#     return ''
-#
-# async def downloader(event, link, type):
-#     if type == 'AL':
-#         items = spotify.album(link)
-#     elif type == 'AR':
-#         items = spotify.artist(link)
-#     elif type == 'PL':
-#         items = spotify.playlist(link)
-#     else:
-#         items = []
-#
-#     message = ""
-#     count = 0
-#     for song in items:
-#         if type == 'PL':
-#             song = song['track']
-#         count += 1
-#         message += f"{count}. {song['name']}\n"
-#     await event.respond(message)
-#
-#     for song in items:
-#         if type == 'PL':
-#             song = song['track']
-#         await download_song(event, song['href'])
-#
-#
-# async def download_song(event, link):
-#     song = spotify.Song(link)
-#     song.yt_link()
-#     try:
-#         song.yt_download()
-#         song.song_meta_data()
-#         caption = f'Track: {song.trackName}\nAlbum: {song.album}\nArtist: {song.artist}'
-#         await event.respond(file=open(f'{song.trackName}.mp3', 'rb'), caption=caption)
-#     except:
-#         await event.respond(f'404\n"{song.trackName}" Not Found')
+
+def text_finder(txt):
+    index = txt.find("https://open.spotify.com")
+    if index != -1:
+        return txt[index:]
+    return ''

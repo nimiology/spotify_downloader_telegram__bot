@@ -21,8 +21,8 @@ if not os.path.exists('covers'):
 
 class Song:
     def __init__(self, link):
-        self.id = link
-        self.spotify = SPOTIFY.track(self.id)
+        self.spotify = SPOTIFY.track(link)
+        self.id = self.spotify['id']
         self.spotify_link = self.spotify['external_urls']['spotify']
         self.track_name = self.spotify['name']
         self.artists_list = self.spotify['artists']
