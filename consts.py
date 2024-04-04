@@ -34,3 +34,5 @@ NO_LYRICS_FOUND = '❌No lyrics found'
 SONG_NOT_FOUND = '❌Song Not Found'
 
 ALBUM_HAS_SENT_SUCCESSFULLY = '🎧album sent!'
+
+PLAYLIST_HAS_SENT_SUCCESSFULLY = '🎧playlist first 50 songs has sent!'

@@ -2,6 +2,7 @@ from telethon import events, client
 
 from spotify.album import Album
 from spotify.artist import Artist
+from spotify.playlist import Playlist
 from spotify.song import Song
 from telegram import CLIENT
 from telegram.utils import handle_search_message
@@ -27,6 +28,8 @@ async def handle_artist(event: events.NewMessage.Event, msg_link):
 
 async def handle_playlist(event: events.NewMessage.Event, msg_link):
     print(f'[TELEGRAM] playlist callback query: {msg_link}')
+    message = await Playlist(msg_link).playlist_template()
+    await event.respond(message[0], buttons=message[1])
 
 
 @CLIENT.on(events.NewMessage)
