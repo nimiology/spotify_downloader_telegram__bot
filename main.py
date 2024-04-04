@@ -1,4 +1,4 @@
-from telegram import BOT_TOKEN, song_callback_query, new_message, CLIENT
+from telegram import BOT_TOKEN, song_callback_query, album_callback_query, new_message, CLIENT
 
 if __name__ == '__main__':
     print('[BOT] Starting...')
