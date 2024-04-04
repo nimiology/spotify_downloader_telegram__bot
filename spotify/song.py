@@ -2,15 +2,18 @@ import datetime
 import os
 
 import requests
+from telethon.tl import types
+from telethon.tl.types import PeerUser
 from youtube_search import YoutubeSearch
 import yt_dlp
 import eyed3.id3
 import eyed3
-from telethon import Button
+from telethon import Button, events
 
+from consts import DOWNLOADING, UPLOADING, PROCESSING, ALREADY_IN_DB, NOT_IN_DB
 from models import session, User, SongRequest
 from spotify import SPOTIFY, GENIUS
-from telegram import DB_CHANNEL_ID
+from telegram import DB_CHANNEL_ID, CLIENT, BOT_ID
 
 if not os.path.exists('covers'):
     os.makedirs('covers')
@@ -175,3 +178,55 @@ class Song:
             group_id=DB_CHANNEL_ID
         ))
         session.commit()
+
+    @staticmethod
+    async def progress_callback(processing, sent_bytes, total):
+        percentage = sent_bytes / total * 100
+        await processing.edit(f"Uploading: {percentage:.2f}%")
+
+    @staticmethod
+    async def upload_on_telegram(event: events.CallbackQuery.Event, song_id):
+        processing = await event.respond(PROCESSING)
+
+        # first check if the song is already in the database
+        song_db = session.query(SongRequest).filter_by(spotify_id=song_id).first()
+        if song_db:
+            db_message = await processing.edit(ALREADY_IN_DB)
+            message_id = song_db.song_id_in_group
+        else:
+            # if not, create a new message in the database
+            await processing.delete()
+            song = Song(song_id)
+            db_message = await event.respond(NOT_IN_DB)
+            # update processing message
+            processing = await event.respond(DOWNLOADING)
+            file_path = song.download()
+            await processing.edit(UPLOADING)
+
+            upload_file = await CLIENT.upload_file(file_path,
+                                                   progress_callback=lambda sent_bytes, total: Song.progress_callback(
+                                                       processing,
+                                                       sent_bytes,
+                                                       total))
+            new_message = await CLIENT.send_file(
+                DB_CHANNEL_ID,
+                caption=BOT_ID,
+                file=upload_file,
+                supports_streaming=True,
+                attributes=(
+                    types.DocumentAttributeAudio(title=song.track_name, duration=song.duration_to_seconds,
+                                                 performer=song.artist_name),),
+
+            )
+            await processing.delete()
+            song.save_db(event.sender_id, new_message.id)
+            message_id = new_message.id
+
+        # forward the message
+        await CLIENT.forward_messages(
+            entity=event.chat_id,  # Destination chat ID
+            messages=message_id,  # Message ID to forward
+            from_peer=PeerUser(int(DB_CHANNEL_ID))  # ID of the chat/channel where the message is from
+        )
+        await db_message.delete()
+

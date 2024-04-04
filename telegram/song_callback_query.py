@@ -16,57 +16,12 @@ async def song_callback_query(event: events.CallbackQuery.Event):
     await event.respond(message[0], thumb=message[1], buttons=message[2])
 
 
-async def progress_callback(processing, sent_bytes, total):
-    percentage = sent_bytes / total * 100
-    await processing.edit(f"Uploading: {percentage:.2f}%")
-
-
 @CLIENT.on(events.CallbackQuery(pattern='download_song'))
 async def send_song_callback_query(event: events.CallbackQuery.Event):
     data = event.data.decode('utf-8')
     song_id = data[14:]
     print(f'[TELEGRAM] download song callback query: {song_id}')
-    processing = await event.respond(PROCESSING)
-
-    # first check if the song is already in the database
-    song_db = session.query(SongRequest).filter_by(spotify_id=song_id).first()
-    if song_db:
-        await processing.edit(ALREADY_IN_DB)
-        message_id = song_db.song_id_in_group
-    else:
-        # if not, create a new message in the database
-        await processing.delete()
-        song = Song(song_id)
-        await event.respond(NOT_IN_DB)
-        # update processing message
-        processing = await event.respond(DOWNLOADING)
-        file_path = song.download()
-        await processing.edit(UPLOADING)
-
-        upload_file = await CLIENT.upload_file(file_path,
-                                               progress_callback=lambda sent_bytes, total: progress_callback(processing,
-                                                                                                             sent_bytes,
-                                                                                                             total))
-        new_message = await CLIENT.send_file(
-            DB_CHANNEL_ID,
-            caption=BOT_ID,
-            file=upload_file,
-            supports_streaming=True,
-            attributes=(
-                types.DocumentAttributeAudio(title=song.track_name, duration=song.duration_to_seconds,
-                                             performer=song.artist_name),),
-
-        )
-        await processing.delete()
-        song.save_db(event.sender_id, new_message.id)
-        message_id = new_message.id
-
-    # forward the message
-    await CLIENT.forward_messages(
-        entity=event.chat_id,  # Destination chat ID
-        messages=message_id,  # Message ID to forward
-        from_peer=PeerUser(int(DB_CHANNEL_ID))  # ID of the chat/channel where the message is from
-    )
+    await Song.upload_on_telegram(event, song_id)
 
 
 @CLIENT.on(events.CallbackQuery(pattern='track_lyrics'))
