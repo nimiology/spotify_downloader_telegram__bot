@@ -207,16 +207,12 @@ class Song:
             if yt_link is None:
                 print(f'[YOUTUBE] song not found: {song.uri}')
                 await processing.delete()
-                await event.respond(SONG_NOT_FOUND)
+                await event.respond(f"{song.track_name}\n{SONG_NOT_FOUND}")
                 return
             file_path = song.download(yt_link=yt_link)
             await processing.edit(UPLOADING)
 
-            upload_file = await CLIENT.upload_file(file_path,
-                                                   progress_callback=lambda sent_bytes, total: Song.progress_callback(
-                                                       processing,
-                                                       sent_bytes,
-                                                       total))
+            upload_file = await CLIENT.upload_file(file_path)
             new_message = await CLIENT.send_file(
                 DB_CHANNEL_ID,
                 caption=BOT_ID,

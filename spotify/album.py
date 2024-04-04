@@ -35,3 +35,9 @@ class Album:
                    ]
 
         return message, self.album_cover, buttons
+
+    async def artist_buttons_telethon_templates(self):
+        message = f"{self.album_name} album Artist's"
+        buttons = [[Button.inline(artist['name'], data=f"artist:{artist['id']}")]
+                   for artist in self.artists_list]
+        return message, buttons
