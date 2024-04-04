@@ -39,7 +39,6 @@ class Song:
         self.path = f'songs'
         self.file = f'{self.path}/{self.id}.mp3'
         self.uri = self.spotify['uri']
-        print(f'[SPOTIFY] Song: {self.track_name}')
 
     def features(self):
         if len(self.artists) > 1:
