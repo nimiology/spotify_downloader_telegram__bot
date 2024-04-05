@@ -41,7 +41,7 @@ async def handle_playlist(event: events.NewMessage.Event, msg_link):
 @CLIENT.on(events.NewMessage)
 async def download(event: events.NewMessage.Event):
     # message is private
-    if event.is_private:
+    if event.is_private and not event.raw_text.startswith('/start'):
         msg = event.raw_text
         print(f'[TELEGRAM] New message: {msg}')
         msg_link = text_finder(msg)
