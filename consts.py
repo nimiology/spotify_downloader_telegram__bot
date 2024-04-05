@@ -1,9 +1,6 @@
 WELCOME_MESSAGE = '''Hi,
-This is Spotify Downloader!
-You can use the following commands:
-/album - Download songs from an album
-/single - Download a single song
-/artist - Download songs from an artist'''
+A Simple Telegram Bot That Lets You Download Tracks From Spotify And YouTube!
+Supports Downloading Tracks, Albums, Playlists, Artists! 🎧📱💿'''
 
 ARTISTS_MESSAGE = '''Please send the name of the artist like this: Artist Name'''
 

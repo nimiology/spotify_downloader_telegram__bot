@@ -1,11 +1,17 @@
 from telethon import events, client
 
+from consts import WELCOME_MESSAGE
 from spotify.album import Album
 from spotify.artist import Artist
 from spotify.playlist import Playlist
 from spotify.song import Song
 from telegram import CLIENT
 from telegram.utils import handle_search_message
+
+
+@CLIENT.on(events.NewMessage(pattern='/start'))
+async def start(event):
+    await event.respond(WELCOME_MESSAGE)
 
 
 async def handle_track(event: events.NewMessage.Event, msg_link):
