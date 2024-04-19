@@ -1,0 +1,45 @@
+{
+  "name": "spotifydlbot",
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Your bot token",
+      "value": "BOT_TOKEN_VALUE"
+    },
+    "SPOTIFY_CLIENT_ID": {
+      "description": "Your Spotify client ID",
+      "value": "SPOTIFY_CLIENT_ID_VALUE"
+    },
+    "SPOTIFY_CLIENT_SECRET": {
+      "description": "Your Spotify client secret",
+      "value": "SPOTIFY_CLIENT_SECRET_VALUE"
+    },
+    "TELEGRAM_API_ID": {
+      "description": "Your Telegram API ID",
+      "value": "TELEGRAM_API_ID_VALUE"
+    },
+    "TELEGRAM_API_HASH": {
+      "description": "Your Telegram API hash",
+      "value": "TELEGRAM_API_HASH_VALUE"
+    },
+    "GENIUS_ACCESS_TOKEN": {
+      "description": "Your Genius access token",
+      "value": "GENIUS_ACCESS_TOKEN_VALUE"
+    },
+    "BOT_ID": {
+      "description": "Your bot ID",
+      "value": "BOT_ID_VALUE"
+    },
+    "DB_CHANNEL_ID": {
+      "description": "Your database channel ID",
+      "value": "DB_CHANNEL_ID_VALUE"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
