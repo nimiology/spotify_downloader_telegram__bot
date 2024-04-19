@@ -30,14 +30,14 @@ pip install -r requirements.txt
 ```
 
 3. Set up your .env file with sample.env:
-    - `BOT_TOKEN`: Telegram bot token
-    - `SPOTIFY_CLIENT_ID`: Spotify client ID
-    - `SPOTIFY_CLIENT_SECRET`: Spotify client secret
-    - `TELEGRAM_API_ID`: Telegram api ID
-    - `TELEGRAM_API_HASH`: Telegram api hash
-    - `GENIUS_ACCESS_TOKEN`: Genius API access token
-    - `BOT_ID`: Telegram bot username
-    - `DB_CHANNEL_ID`: Telegram channel ID
+    - `BOT_TOKEN`: Telegram bot token - You can obtain this by creating a new bot on Telegram using the BotFather bot. BotFather will provide you with a token for your bot.
+    - `SPOTIFY_CLIENT_ID`: Spotify client ID - These are obtained by registering your application on the Spotify Developer Dashboard. After registration, you'll receive both the client ID and client secret.
+    - `SPOTIFY_CLIENT_SECRET`: Spotify client secret - These are obtained by registering your application on the Spotify Developer Dashboard. After registration, you'll receive both the client ID and client secret.
+    - `TELEGRAM_API_ID`: Telegram api ID - You can get these by creating an application on the Telegram API website (https://my.telegram.org). After creating the application, you'll receive the API ID and API hash
+    - `TELEGRAM_API_HASH`: Telegram api hash - You can get these by creating an application on the Telegram API website (https://my.telegram.org). After creating the application, you'll receive the API ID and API hash
+    - `GENIUS_ACCESS_TOKEN`: Genius API access token - You can obtain this by registering your application on the Genius Developer website (https://genius.com/api-clients). After registering, you'll receive an access token for using the Genius API.
+    - `BOT_ID`: Telegram bot username - This is the username of your Telegram bot, which you set when creating the bot on the BotFather. You can use this variable as song caption too.
+    - `DB_CHANNEL_ID`: Telegram channel ID - This is the chat ID of the channel you want to use for your database. You can obtain this by adding your bot to the channel and using a tool like https://t.me/JsonDumpBot bot in the Telegram to find out the ID of the channel.
 
 4. Run the bot:
 
