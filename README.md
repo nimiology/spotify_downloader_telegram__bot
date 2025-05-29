@@ -41,20 +41,21 @@ pip install -r requirements.txt
 
 
 4. Install FFmpeg (required for audio processing):
+   Windows: 
+   
+   Download from https://ffmpeg.org/download.html and add ffmpeg/bin to your system PATH.
 
-Windows: Download from https://ffmpeg.org/download.html and add ffmpeg/bin to your system PATH.
+   macOS:
 
-macOS:
+   ```
+   brew install ffmpeg
+   ```
+   Linux (Debian/Ubuntu):
 
-```
-brew install ffmpeg
-```
-Linux (Debian/Ubuntu):
-
-```
-sudo apt update
-sudo apt install ffmpeg
-```
+   ```
+   sudo apt update
+   sudo apt install ffmpeg
+   ```
 
 5. Run the bot:
 
