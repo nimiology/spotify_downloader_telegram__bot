@@ -39,7 +39,24 @@ pip install -r requirements.txt
     - `BOT_ID`: Telegram bot username - This is the username of your Telegram bot, which you set when creating the bot on the BotFather. You can use this variable as song caption too.
     - `DB_CHANNEL_ID`: Telegram channel ID - This is the chat ID of the channel you want to use for your database. You can obtain this by adding your bot to the channel and using a tool like https://t.me/JsonDumpBot bot in the Telegram to find out the ID of the channel.
 
-4. Run the bot:
+
+4. Install FFmpeg (required for audio processing):
+
+Windows: Download from https://ffmpeg.org/download.html and add ffmpeg/bin to your system PATH.
+
+macOS:
+
+```
+brew install ffmpeg
+```
+Linux (Debian/Ubuntu):
+
+```
+sudo apt update
+sudo apt install ffmpeg
+```
+
+5. Run the bot:
 
 ```
  python main.py
